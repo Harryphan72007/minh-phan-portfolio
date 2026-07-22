@@ -13,12 +13,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Starter Project",
-  description: "A clean starting point for building your site.",
-  icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-  },
+  title: "Quang Minh Phan | ML Research & Efficient AI",
+  description:
+    "Computer Science student at the University of Minnesota working on computer vision, model robustness, efficient fine-tuning, and practical AI systems.",
+  keywords: [
+    "Quang Minh Phan",
+    "machine learning research",
+    "computer vision",
+    "efficient AI",
+    "University of Minnesota",
+  ],
 };
 
 export default function RootLayout({
