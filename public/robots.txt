@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://harryphan72007.github.io/minh-phan-portfolio/sitemap.xml

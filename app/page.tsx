@@ -1,152 +1,120 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const profileLinks = {
-  github: "https://github.com/",
-  linkedin: "https://www.linkedin.com/",
-  email: "",
-  paper: "#research",
-  openReview: "#research",
+  github: "https://github.com/Harryphan72007",
+  linkedin: null,
+  email: null,
+  paper: null,
+  openReview: null,
   resume: "/quang-minh-phan-resume.pdf",
 };
-
-const researchContributions = [
-  "Designed and ran ResNet-50 and ConvNeXt-Tiny experiments",
-  "Evaluated CIFAR-10 and CIFAR-10-C robustness",
-  "Compared full fine-tuning with LoRA adaptation",
-  "Tested profile-selected and baseline layer subsets",
-  "Analyzed clean and corrupted accuracy across seeds",
-  "Compared trainable parameters and experimental results",
-];
 
 const projects = [
   {
     id: "mega-asr",
     number: "01",
     title: "Mega-ASR Studio",
-    category: "Speech AI · Full-stack AI application",
-    description:
-      "A local speech-to-text application pairing a FastAPI backend with a focused React interface and reusable local inference.",
-    role: "Full-stack AI developer",
-    challenge: "Making heavyweight local inference reliable across concurrent uploads.",
-    learning: "Model lifecycle and operational safeguards matter as much as inference quality.",
+    category: "ML systems · Full-stack engineering",
+    summary:
+      "Built a local speech-to-text workspace that keeps ASR inference reliable across individual and batch transcription workflows.",
+    problem:
+      "Local speech models are expensive to load and can fail unpredictably when multiple files reach inference at once.",
+    contribution:
+      "Designed the FastAPI endpoints and React interface, reused one loaded model across requests, and implemented inference locking, validation, and operational status flows.",
+    approach: "Audio input → FastAPI validation → locked local inference → transcript",
+    outcome:
+      "Supports microphone capture, drag-and-drop upload, audio preview, single-file and batch transcription, and explicit decode and memory error states.",
     stack: ["Python", "FastAPI", "React", "Vite", "Local ASR"],
-    features: [
-      "Microphone recording and drag-and-drop upload",
-      "Single-file and batch transcription",
-      "Model reuse and inference concurrency control",
-      "Decode, validation, and memory error handling",
-      "Audio preview and live system status",
-    ],
+    repository: null,
+    demo: null,
   },
   {
     id: "noteflow",
     number: "02",
     title: "NoteFlow AI",
-    category: "Local-first documentation intelligence",
-    description:
-      "A documentation-support platform that turns notes, audio, and scans into structured, reviewable, and auditable records.",
-    role: "Product and AI application developer",
-    challenge: "Preserving source traceability while normalizing mixed-format inputs.",
-    learning: "Human review and auditability are core product features in high-context workflows.",
+    category: "Local-first AI · Product engineering",
+    summary:
+      "Built a documentation-support platform that turns notes, recordings, and scans into structured records with a human review trail.",
+    problem:
+      "Mixed-format documentation is difficult to normalize without losing source context or accountability.",
+    contribution:
+      "Designed ingestion for manual notes, ASR, and OCR, then connected normalization, source comparison, review, tasks, audit logs, and exports.",
+    approach: "Notes + audio + scans → extraction → comparison → human review → export",
+    outcome:
+      "Keeps decisions with the reviewer: the system supports documentation work and does not make autonomous diagnosis or treatment decisions.",
     stack: ["React", "TypeScript", "Vite", "ASR", "OCR", "Local AI"],
-    features: [
-      "Manual notes, audio transcription, and OCR ingestion",
-      "Text normalization and source comparison",
-      "Human review workflow and task tracking",
-      "Audit logs and document exports",
-      "Local-first processing for practical privacy",
-    ],
-    note: "Supports human documentation workflows. It does not make autonomous diagnoses or treatment decisions.",
+    repository: null,
+    demo: null,
   },
   {
     id: "asl",
     number: "03",
-    title: "AI Sign Language Recognition",
-    category: "Computer Vision · Real-time ML",
-    description:
-      "A real-time American Sign Language hand-gesture prototype built around landmarks and interpretable classical ML.",
-    role: "Computer vision developer",
-    challenge: "Building stable features from live hand landmarks under changing camera conditions.",
-    learning: "A clear data pipeline can make compact classical models effective for real-time interaction.",
+    title: "Sign Language Recognition",
+    category: "Computer vision · Real-time ML",
+    summary:
+      "Built a real-time American Sign Language gesture prototype using hand landmarks and an interpretable classical ML pipeline.",
+    problem:
+      "Live gesture recognition needs stable features despite changing camera position, scale, and hand placement.",
+    contribution:
+      "Connected camera capture, MediaPipe hand detection, landmark extraction, preprocessing, and k-nearest-neighbors prediction.",
+    approach: "Camera → hand detection → landmarks → feature preprocessing → k-NN",
+    outcome:
+      "Delivered a compact real-time prototype whose input features and predictions are straightforward to inspect and debug.",
     stack: ["Python", "OpenCV", "MediaPipe", "scikit-learn", "k-NN"],
-    features: [
-      "Live camera capture and hand detection",
-      "Landmark extraction and feature preprocessing",
-      "k-nearest neighbors classification",
-      "Real-time prediction feedback",
-      "Compact, inspectable ML pipeline",
-    ],
+    repository: null,
+    demo: null,
   },
 ];
 
 const skillGroups = [
-  { label: "Programming", skills: ["Python", "C++", "Java"] },
+  { label: "Programming", skills: ["Python", "C++", "Java", "TypeScript"] },
+  { label: "Backend & Web", skills: ["FastAPI", "React", "Vite", "REST APIs"] },
   {
-    label: "Machine Learning",
-    skills: ["PyTorch", "scikit-learn", "LoRA", "Fine-tuning", "Computer vision", "OpenCV", "MediaPipe", "k-NN"],
+    label: "ML & Computer Vision",
+    skills: ["PyTorch", "scikit-learn", "LoRA", "Model fine-tuning", "OpenCV", "MediaPipe", "k-NN"],
   },
-  { label: "AI Applications", skills: ["Local ASR", "OCR", "Ollama", "Document workflows"] },
-  { label: "Web Development", skills: ["FastAPI", "React", "TypeScript", "Vite", "REST APIs"] },
-  { label: "Research Tools", skills: ["Git", "LaTeX", "Experiment tracking", "Multi-seed evaluation", "Result analysis"] },
+  { label: "AI Applications", skills: ["Local ASR inference", "OCR", "Ollama", "Document workflows"] },
+  { label: "Research Practice", skills: ["Git", "LaTeX", "Experiment tracking", "Multi-seed evaluation", "Result analysis"] },
 ];
 
-const focusAreas = [
-  {
-    index: "01",
-    title: "Efficient Computer Vision",
-    text: "Comparing CNNs, Vision Transformers, Mamba, and self-supervised methods.",
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Minh Phan",
+  alternateName: "Quang Minh Phan",
+  url: "https://harryphan72007.github.io/minh-phan-portfolio/",
+  sameAs: [profileLinks.github],
+  affiliation: {
+    "@type": "CollegeOrUniversity",
+    name: "University of Minnesota Twin Cities",
   },
-  {
-    index: "02",
-    title: "Vision Robustness",
-    text: "Understanding how perturbations propagate through model layers.",
-  },
-  {
-    index: "03",
-    title: "Parameter-Efficient Adaptation",
-    text: "Studying LoRA, layer selection, and efficient fine-tuning.",
-  },
-  {
-    index: "04",
-    title: "AI Hardware & Systems",
-    text: "Learning how architecture, computation, and hardware constraints interact.",
-  },
-];
+  knowsAbout: [
+    "Software engineering",
+    "Machine learning systems",
+    "Computer vision",
+    "Efficient machine learning",
+  ],
+};
 
-function ArrowIcon() {
+function Arrow() {
   return <span aria-hidden="true">↗</span>;
 }
 
-function NeuralVisual() {
+function PendingLink({ label }: { label: string }) {
   return (
-    <div className="neural-visual" aria-label="Abstract visualization of clean and corrupted image representations moving through neural network layers">
-      <div className="visual-toolbar">
-        <span>ROBUSTNESS / LAYER TRACE</span>
-        <span className="live-dot">LIVE</span>
-      </div>
-      <div className="visual-grid" aria-hidden="true">
-        <div className="input-patch">
-          {Array.from({ length: 16 }).map((_, index) => (
-            <i key={index} style={{ "--i": index } as React.CSSProperties} />
-          ))}
-          <span>INPUT</span>
-        </div>
-        <div className="layer layer-one"><b>L1</b><i /><i /><i /></div>
-        <div className="layer layer-two"><b>L2</b><i /><i /><i /><i /></div>
-        <div className="layer layer-three"><b>L3</b><i /><i /><i /></div>
-        <div className="representation">
-          <span className="clean-node">CLEAN</span>
-          <span className="corrupt-node">CORRUPT</span>
-        </div>
-        <div className="signal clean-signal" />
-        <div className="signal corrupt-signal" />
-      </div>
-      <div className="visual-legend">
-        <span><i className="legend-clean" /> clean representation</span>
-        <span><i className="legend-corrupt" /> perturbed representation</span>
-      </div>
+    <span className="pending-link" aria-label={`${label} link pending`} title={`${label} link pending`}>
+      {label} <small>link pending</small>
+    </span>
+  );
+}
+
+function SectionHeading({ number, label, title, muted }: { number: string; label: string; title: string; muted: string }) {
+  return (
+    <div className="section-heading reveal">
+      <span className="section-number">{number} / {label}</span>
+      <h2>{title} <em>{muted}</em></h2>
     </div>
   );
 }
@@ -154,12 +122,12 @@ function NeuralVisual() {
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeProject, setActiveProject] = useState<(typeof projects)[number] | null>(null);
-  const [formStatus, setFormStatus] = useState("");
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
-      { threshold: 0.12 },
+      { threshold: 0.1 },
     );
     document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
     return () => observer.disconnect();
@@ -167,6 +135,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!activeProject) return;
+    closeButtonRef.current?.focus();
     const closeOnEscape = (event: KeyboardEvent) => event.key === "Escape" && setActiveProject(null);
     document.addEventListener("keydown", closeOnEscape);
     document.body.classList.add("modal-open");
@@ -176,290 +145,224 @@ export default function Home() {
     };
   }, [activeProject]);
 
-  function handleContact(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const subject = encodeURIComponent(String(data.get("subject") || "Portfolio conversation"));
-    const body = encodeURIComponent(
-      `From: ${String(data.get("name"))}\nEmail: ${String(data.get("email"))}\n\n${String(data.get("message"))}`,
-    );
-    setFormStatus("Opening a ready-to-send email draft in your mail app.");
-    window.location.href = `mailto:${profileLinks.email}?subject=${subject}&body=${body}`;
-  }
-
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }} />
       <a className="skip-link" href="#main">Skip to content</a>
+
       <header className="site-header">
-        <a className="wordmark" href="#home" aria-label="Quang Minh Phan, home">
-          <span>QMP</span><i />
-        </a>
-        <nav className={menuOpen ? "nav-links is-open" : "nav-links"} aria-label="Primary navigation">
-          {["About", "Research", "Experience", "Projects", "Skills", "Contact"].map((item) => (
+        <a className="wordmark" href="#home" aria-label="Minh Phan, home">MP<i /></a>
+        <nav id="primary-mobile-menu" className={menuOpen ? "nav-links is-open" : "nav-links"} aria-label="Primary navigation">
+          {["Projects", "Experience", "Research", "Skills", "Education", "Contact"].map((item) => (
             <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMenuOpen(false)}>{item}</a>
           ))}
         </nav>
         <div className="header-actions">
-          <a className="icon-link" href={profileLinks.github} target="_blank" rel="noreferrer" aria-label="GitHub profile">GH</a>
-          <a className="icon-link" href={profileLinks.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn profile">LI</a>
+          <a className="icon-link" href={profileLinks.github} target="_blank" rel="noopener noreferrer" aria-label="Minh Phan on GitHub">GH</a>
           <a className="button button-small" href={profileLinks.resume} download>Résumé</a>
           <button
             className="menu-button"
             type="button"
             aria-expanded={menuOpen}
+            aria-controls="primary-mobile-menu"
             aria-label="Toggle navigation"
             onClick={() => setMenuOpen((open) => !open)}
-          >
-            <span /><span />
-          </button>
+          ><span /><span /></button>
         </div>
       </header>
 
       <main id="main">
         <section className="hero" id="home">
           <div className="hero-copy reveal is-visible">
-            <div className="eyebrow"><i /> ML RESEARCH · COMPUTER VISION · EFFICIENT AI</div>
-            <h1>Building and studying <span>efficient AI systems.</span></h1>
+            <div className="eyebrow"><i /> MINH PHAN · COMPUTER SCIENCE @ UMN</div>
+            <h1>Software Engineering <span>& ML Systems Student</span></h1>
             <p className="hero-intro">
-              I am <strong>Quang Minh Phan</strong>, a Computer Science student at the University of Minnesota working on computer vision, model robustness, efficient fine-tuning, and practical AI applications.
+              I build reliable software and practical machine-learning systems, with experience in local AI applications, computer vision experiments, and production-oriented backend development.
             </p>
             <div className="hero-actions">
-              <a className="button" href="#projects">View my work <ArrowIcon /></a>
+              <a className="button" href="#projects">Featured projects <Arrow /></a>
               <a className="button button-secondary" href={profileLinks.resume} download>Download résumé</a>
+              <a className="button button-tertiary" href="#contact">Contact</a>
             </div>
-            <div className="social-row" aria-label="Social links">
-              <a href={profileLinks.github} target="_blank" rel="noreferrer">GitHub <ArrowIcon /></a>
-              <a href={profileLinks.linkedin} target="_blank" rel="noreferrer">LinkedIn <ArrowIcon /></a>
-              <a href="#contact">Email <ArrowIcon /></a>
-            </div>
-          </div>
-          <div className="hero-visual reveal is-visible">
-            <NeuralVisual />
-            <div className="status-strip">
-              <span>Undergraduate Researcher</span>
-              <span>Software Engineering Intern</span>
-              <span>ICML Workshop Co-author</span>
+            <div className="social-row" aria-label="Professional links">
+              <a href={profileLinks.github} target="_blank" rel="noopener noreferrer">GitHub <Arrow /></a>
+              <PendingLink label="LinkedIn" />
+              <PendingLink label="Email" />
             </div>
           </div>
-          <a className="scroll-cue" href="#about"><span>Scroll to explore</span><i /></a>
-        </section>
 
-        <section className="section about" id="about">
-          <div className="section-heading reveal">
-            <span className="section-number">01 / ABOUT</span>
-            <h2>Curious about how models <em>learn, adapt,</em> and behave.</h2>
-          </div>
-          <div className="about-layout">
-            <div className="about-copy reveal">
-              <p className="lead">I am a Computer Science undergraduate at the University of Minnesota Twin Cities interested in understanding how machine-learning models behave under real-world conditions.</p>
-              <p>My work combines computer-vision research with practical AI development. I have contributed to research on layer-wise vision robustness and parameter-efficient adaptation, while building local AI applications involving speech recognition, OCR, document processing, and human review.</p>
-              <p>My long-term goal is to work on efficient AI and machine-learning systems that connect model design, experimentation, and real-world deployment.</p>
+          <aside className="candidate-panel reveal is-visible" aria-label="Candidate profile summary">
+            <div className="panel-header"><span>CANDIDATE PROFILE</span><i>OPEN TO INTERNSHIPS</i></div>
+            <div className="candidate-core">
+              <span className="candidate-initials" aria-hidden="true">MP</span>
+              <div><strong>Minh Phan</strong><span>Minneapolis, Minnesota</span></div>
             </div>
-            <dl className="facts-grid reveal">
-              <div><dt>University</dt><dd>University of Minnesota</dd></div>
-              <div><dt>Program</dt><dd>B.S. Computer Science</dd></div>
+            <dl className="candidate-facts">
+              <div><dt>Education</dt><dd>B.S. Computer Science</dd></div>
               <div><dt>Graduation</dt><dd>May 2028</dd></div>
-              <div><dt>GPA</dt><dd>3.93 <span>/ 4.00</span></dd></div>
-              <div><dt>Based in</dt><dd>Minneapolis, Minnesota</dd></div>
-              <div><dt>Languages</dt><dd>Vietnamese & English</dd></div>
+              <div><dt>GPA</dt><dd>3.93 / 4.00</dd></div>
+              <div><dt>Current work</dt><dd>SWE Intern + Research Volunteer</dd></div>
             </dl>
-          </div>
-        </section>
+            <div className="target-block">
+              <span>TARGET ROLES</span>
+              <div><b>Software Engineering</b><b>ML Engineering</b><b>Computer Vision</b></div>
+            </div>
+            <div className="system-line" aria-hidden="true"><i /><i /><i /><i /></div>
+          </aside>
 
-        <section className="section research" id="research">
-          <div className="section-kicker reveal"><span className="section-number">02 / RESEARCH</span><span>FEATURED PUBLICATION · 2026</span></div>
-          <article className="publication-card reveal">
-            <div className="publication-main">
-              <div className="publication-label"><i /> ACCEPTED TO CTB AT ICML 2026</div>
-              <h2><span>The Shape of Noise:</span> Layer-Wise Perturbation Profiles for Diagnosing Vision Robustness</h2>
-              <p>This work introduces the Perturbation Evaluation Framework, a layer-wise diagnostic method for studying how image corruption is amplified or suppressed inside vision models.</p>
-              <div className="publication-actions">
-                <a className="text-link" href={profileLinks.paper}>Read paper <ArrowIcon /></a>
-                <a className="text-link" href={profileLinks.openReview}>View OpenReview <ArrowIcon /></a>
-                <button className="text-link" type="button" onClick={() => document.querySelector("#research-details")?.scrollIntoView({ behavior: "smooth" })}>Research summary ↓</button>
-              </div>
-            </div>
-            <div className="research-pipeline" aria-label="Clean image to perturbation profile pipeline">
-              <div className="pipeline-step"><span>01</span><b>Clean image</b><i className="mini-pixels" /></div>
-              <div className="pipeline-arrow">→</div>
-              <div className="pipeline-step"><span>02</span><b>Corruption</b><i className="mini-pixels noisy" /></div>
-              <div className="pipeline-arrow">→</div>
-              <div className="pipeline-step layers-mini"><span>03</span><b>Layers</b><i /><i /><i /></div>
-              <div className="pipeline-arrow">→</div>
-              <div className="pipeline-step profile-mini"><span>04</span><b>Profile</b><i /><i /><i /><i /></div>
-            </div>
-          </article>
-
-          <div className="research-details" id="research-details">
-            <div className="contributions reveal">
-              <div className="subheading"><span>MY CONTRIBUTIONS</span><span>06 EXPERIMENTAL AREAS</span></div>
-              <ul>
-                {researchContributions.map((item, index) => <li key={item}><span>0{index + 1}</span>{item}</li>)}
-              </ul>
-            </div>
-            <div className="metrics-card reveal">
-              <div className="subheading"><span>EFFICIENCY / ROBUSTNESS</span><span>CONVNEXT-TINY</span></div>
-              <h3>Strong corrupted accuracy with <em>~696× fewer</em> trainable parameters.</h3>
-              <div className="metric-row metric-featured">
-                <div><span>Top-k LoRA</span><strong>92.57<small>%</small></strong><small>corrupted accuracy</small></div>
-                <div><strong>0.04<small>M</small></strong><small>trainable parameters</small></div>
-              </div>
-              <div className="bar"><i style={{ width: "92.57%" }} /></div>
-              <div className="metric-row">
-                <div><span>Full fine-tuning</span><strong>94.95<small>%</small></strong><small>corrupted accuracy</small></div>
-                <div><strong>27.83<small>M</small></strong><small>trainable parameters</small></div>
-              </div>
-              <div className="bar bar-muted"><i style={{ width: "94.95%" }} /></div>
-              <p className="metric-note">Accuracy shown on CIFAR-10-C. Parameter comparison is not encoded by bar length.</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="section experience" id="experience">
-          <div className="section-heading reveal">
-            <span className="section-number">03 / EXPERIENCE</span>
-            <h2>Research rigor, <em>production thinking.</em></h2>
-          </div>
-          <div className="timeline">
-            <article className="experience-card reveal">
-              <div className="timeline-marker"><i /><span>2026—</span></div>
-              <div className="experience-meta"><span>MAY 2026 — PRESENT</span><span>MINNEAPOLIS, MN</span></div>
-              <h3>Undergraduate Research Volunteer</h3>
-              <p className="organization">Ding Lab · University of Minnesota Twin Cities</p>
-              <ul>
-                <li>Support a PhD-led AI hardware and systems research project.</li>
-                <li>Prepare, review, and label training and evaluation datasets.</li>
-                <li>Identify inconsistent or low-quality preprocessing outputs.</li>
-                <li>Run and analyze reproducible computer-vision experiments.</li>
-              </ul>
-            </article>
-            <article className="experience-card reveal">
-              <div className="timeline-marker"><i /><span>2026—</span></div>
-              <div className="experience-meta"><span>MAY 2026 — PRESENT</span><span>HO CHI MINH CITY, VN</span></div>
-              <h3>Software Engineering Intern</h3>
-              <p className="organization">FPT Software</p>
-              <ul>
-                <li>Built Mega-ASR Studio with FastAPI, React, and Vite.</li>
-                <li>Designed APIs for single-file and batch transcription.</li>
-                <li>Reused a local ASR model with inference locking and validation.</li>
-                <li>Handled decoding, out-of-memory, recording, and system status flows.</li>
-              </ul>
-            </article>
+          <div className="evidence-strip reveal is-visible">
+            <span><b>01</b> Production-oriented APIs</span>
+            <span><b>02</b> Local ML inference</span>
+            <span><b>03</b> Reproducible CV experiments</span>
+            <span><b>04</b> Human-centered AI workflows</span>
           </div>
         </section>
 
         <section className="section projects" id="projects">
-          <div className="section-heading reveal">
-            <span className="section-number">04 / SELECTED PROJECTS</span>
-            <h2>Practical systems for <em>real inputs.</em></h2>
-          </div>
-          <div className="project-list">
+          <SectionHeading number="01" label="FEATURED PROJECTS" title="Engineering work built around" muted="real constraints." />
+          <div className="project-grid">
             {projects.map((project) => (
               <article className="project-card reveal" key={project.id}>
-                <div className="project-number">{project.number}</div>
+                <div className="project-card-top"><span>{project.number}</span><span>{project.category}</span></div>
                 <div className={`project-diagram project-diagram-${project.id}`} aria-hidden="true">
-                  <span>{project.category.split(" · ")[0]}</span>
-                  <div className="diagram-core"><i /><i /><i /><i /></div>
+                  <div className="diagram-node">IN</div><i /><div className="diagram-node core">SYS</div><i /><div className="diagram-node">OUT</div>
                 </div>
-                <div className="project-content">
-                  <span className="project-category">{project.category}</span>
-                  <h3>{project.title}</h3>
-                  <p>{project.description}</p>
-                  <div className="tag-row">{project.stack.map((item) => <span key={item}>{item}</span>)}</div>
-                  <div className="project-links">
-                    <a className="text-link" href={profileLinks.github} target="_blank" rel="noreferrer">GitHub <ArrowIcon /></a>
-                    <button className="text-link" type="button" onClick={() => setActiveProject(project)}>Case study <ArrowIcon /></button>
-                  </div>
+                <h3>{project.title}</h3>
+                <p className="project-summary">{project.summary}</p>
+                <dl className="project-details">
+                  <div><dt>Technical approach</dt><dd>{project.approach}</dd></div>
+                  <div><dt>Verified outcome</dt><dd>{project.outcome}</dd></div>
+                </dl>
+                <div className="tag-row">{project.stack.map((item) => <span key={item}>{item}</span>)}</div>
+                <div className="project-links">
+                  <button className="text-link" type="button" onClick={() => setActiveProject(project)}>Technical case study <Arrow /></button>
+                  <span className="repo-pending">Repository link pending</span>
                 </div>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="section skills" id="skills">
-          <div className="section-heading reveal">
-            <span className="section-number">05 / TECHNICAL SKILLS</span>
-            <h2>A toolkit for <em>experiments to interfaces.</em></h2>
+        <section className="section experience" id="experience">
+          <SectionHeading number="02" label="EXPERIENCE" title="Learning by shipping," muted="measuring, and improving." />
+          <div className="experience-list">
+            <article className="experience-card reveal">
+              <div className="experience-side"><span>SOFTWARE ENGINEERING INTERNSHIP</span><b>MAY 2026 — PRESENT</b><small>HO CHI MINH CITY, VIETNAM</small></div>
+              <div>
+                <h3>Software Engineering Intern</h3>
+                <p className="organization">FPT Software</p>
+                <ul>
+                  <li><strong>Built</strong> Mega-ASR Studio with a FastAPI backend, React interface, and reusable local speech model.</li>
+                  <li><strong>Designed</strong> APIs for single-file and batch transcription while keeping one model loaded across requests.</li>
+                  <li><strong>Implemented</strong> inference locking, file validation, and explicit handling for decoding and out-of-memory failures.</li>
+                  <li><strong>Integrated</strong> microphone recording, upload, audio preview, and backend and model status features.</li>
+                </ul>
+              </div>
+            </article>
+            <article className="experience-card reveal">
+              <div className="experience-side"><span>UNDERGRADUATE RESEARCH · VOLUNTEER</span><b>MAY 2026 — PRESENT</b><small>MINNEAPOLIS, MINNESOTA</small></div>
+              <div>
+                <h3>Undergraduate Research Volunteer</h3>
+                <p className="organization">Ding Lab · University of Minnesota Twin Cities</p>
+                <ul>
+                  <li><strong>Prepared</strong> datasets for a PhD-led AI hardware and systems research project.</li>
+                  <li><strong>Reviewed</strong> preprocessing outputs and flagged inconsistent or low-quality samples before evaluation.</li>
+                  <li><strong>Ran</strong> computer-vision experiments and analyzed model behavior under controlled conditions.</li>
+                  <li><strong>Supported</strong> reproducible workflows through structured data review and experiment execution.</li>
+                </ul>
+              </div>
+            </article>
           </div>
+        </section>
+
+        <section className="section research" id="research">
+          <SectionHeading number="03" label="RESEARCH & TECHNICAL WORK" title="Experiment design that informs" muted="engineering decisions." />
+          <article className="research-card reveal">
+            <div className="research-copy">
+              <span className="acceptance-label">ACCEPTED TO CTB AT ICML 2026</span>
+              <h3>The Shape of Noise</h3>
+              <p className="research-title">Layer-Wise Perturbation Profiles for Diagnosing Vision Robustness</p>
+              <p>
+                Contributed to a layer-wise diagnostic framework for measuring how image corruption is amplified or suppressed inside vision models. The work demonstrates paper reading, controlled experimentation, parameter-efficient adaptation, and multi-seed result analysis.
+              </p>
+              <ul className="research-bullets">
+                <li>Designed and ran ResNet-50 and ConvNeXt-Tiny experiments on CIFAR-10 and CIFAR-10-C.</li>
+                <li>Compared full fine-tuning, LoRA, and profile-selected and baseline layer subsets.</li>
+                <li>Analyzed clean and corrupted accuracy, trainable parameters, and results across random seeds.</li>
+              </ul>
+              <div className="publication-actions">
+                {profileLinks.paper ? <a className="text-link" href={profileLinks.paper}>Read manuscript <Arrow /></a> : <PendingLink label="Manuscript" />}
+                {profileLinks.openReview ? <a className="text-link" href={profileLinks.openReview}>OpenReview <Arrow /></a> : <PendingLink label="OpenReview" />}
+              </div>
+            </div>
+            <div className="metrics-card">
+              <div className="metrics-heading"><span>CONVNEXT-TINY / CIFAR-10-C</span><span>VERIFIED RESULT</span></div>
+              <div className="metric-row featured"><div><span>Top-k LoRA</span><strong>92.57<small>%</small></strong><small>corrupted accuracy</small></div><div><strong>0.04<small>M</small></strong><small>trainable parameters</small></div></div>
+              <div className="metric-divider" />
+              <div className="metric-row"><div><span>Full fine-tuning</span><strong>94.95<small>%</small></strong><small>corrupted accuracy</small></div><div><strong>27.83<small>M</small></strong><small>trainable parameters</small></div></div>
+              <p>Top-k LoRA used approximately 696× fewer trainable parameters while retaining most corrupted accuracy in this comparison.</p>
+            </div>
+          </article>
+        </section>
+
+        <section className="section skills" id="skills">
+          <SectionHeading number="04" label="TECHNICAL SKILLS" title="Tools used across" muted="software and ML workflows." />
           <div className="skill-matrix reveal">
-            {skillGroups.map((group, groupIndex) => (
+            {skillGroups.map((group, index) => (
               <div className="skill-row" key={group.label}>
-                <div className="skill-label"><span>0{groupIndex + 1}</span><b>{group.label}</b></div>
+                <div className="skill-label"><span>0{index + 1}</span><b>{group.label}</b></div>
                 <div className="skill-tags">{group.skills.map((skill) => <span key={skill}>{skill}</span>)}</div>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="section focus">
-          <div className="section-heading reveal">
-            <span className="section-number">06 / WHAT I AM EXPLORING</span>
-            <h2>Questions shaping <em>what comes next.</em></h2>
-          </div>
-          <div className="focus-grid">
-            {focusAreas.map((area) => (
-              <article className="focus-card reveal" key={area.title}>
-                <span>{area.index}</span><i />
-                <h3>{area.title}</h3>
-                <p>{area.text}</p>
-              </article>
-            ))}
-          </div>
-          <div className="interests reveal">
-            <span>BEYOND THE LAB</span>
-            <p>Outside research and development, I enjoy <strong>chess</strong>, mathematical problem solving, competitive programming, technical presentations, and maintaining an active lifestyle.</p>
-            <div>♙ · ∑ · &lt;/&gt; · ↗</div>
-          </div>
+        <section className="section education" id="education">
+          <SectionHeading number="05" label="EDUCATION" title="A strong academic base for" muted="technical work." />
+          <article className="education-card reveal">
+            <div><span>UNIVERSITY OF MINNESOTA TWIN CITIES</span><h3>Bachelor of Science in Computer Science</h3><p>Minneapolis, Minnesota</p></div>
+            <dl><div><dt>Expected graduation</dt><dd>May 2028</dd></div><div><dt>GPA</dt><dd>3.93 / 4.00</dd></div><div><dt>Languages</dt><dd>Vietnamese and English</dd></div></dl>
+          </article>
         </section>
 
         <section className="section contact" id="contact">
           <div className="contact-copy reveal">
-            <span className="section-number">07 / CONTACT</span>
-            <h2>Let&apos;s build something <em>worth studying.</em></h2>
-            <p>I am interested in research opportunities, machine-learning internships, computer-vision projects, and collaborations involving efficient AI.</p>
-            <div className="contact-links">
-              <a href={profileLinks.linkedin} target="_blank" rel="noreferrer">LinkedIn <ArrowIcon /></a>
-              <a href={profileLinks.github} target="_blank" rel="noreferrer">GitHub <ArrowIcon /></a>
-              <a href={profileLinks.resume} download>Résumé <ArrowIcon /></a>
-            </div>
+            <span className="section-number">06 / CONTACT</span>
+            <h2>Interested in building <em>reliable systems.</em></h2>
+            <p>I am looking for software engineering, ML engineering, ML systems, and computer vision internship opportunities.</p>
           </div>
-          <form className="contact-form reveal" onSubmit={handleContact}>
-            <div className="form-row">
-              <label><span>Name</span><input name="name" type="text" autoComplete="name" placeholder="Your name" required /></label>
-              <label><span>Email</span><input name="email" type="email" autoComplete="email" placeholder="you@example.com" required /></label>
-            </div>
-            <label><span>Subject</span><input name="subject" type="text" placeholder="Research, internship, or collaboration" required /></label>
-            <label><span>Message</span><textarea name="message" rows={5} placeholder="Tell me a little about what you are working on..." required /></label>
-            <button className="button" type="submit">Start a conversation <ArrowIcon /></button>
-            <p className="form-status" aria-live="polite">{formStatus}</p>
-          </form>
+          <div className="contact-actions reveal">
+            <a href={profileLinks.github} target="_blank" rel="noopener noreferrer"><span>GitHub</span><b>Harryphan72007</b><Arrow /></a>
+            <a href={profileLinks.resume} download><span>Résumé</span><b>Download PDF</b><Arrow /></a>
+            <div className="contact-placeholder"><span>LinkedIn</span><b>Link pending</b></div>
+            <div className="contact-placeholder"><span>Email</span><b>Address pending</b></div>
+          </div>
         </section>
       </main>
 
       <footer>
-        <div className="footer-mark">QMP<i /></div>
-        <div><strong>Quang Minh Phan</strong><span>University of Minnesota Twin Cities</span></div>
-        <p>Designed around research, learning, and practical AI.</p>
-        <div className="footer-links"><a href={profileLinks.github}>GitHub</a><a href={profileLinks.linkedin}>LinkedIn</a><a href="#contact">Email</a></div>
+        <div className="footer-mark">MP<i /></div>
+        <div><strong>Minh Phan</strong><span>Computer Science · University of Minnesota</span></div>
+        <p>Software engineering, ML systems, and computer vision.</p>
+        <div className="footer-links"><a href={profileLinks.github}>GitHub</a><a href={profileLinks.resume}>Résumé</a><a href="#contact">Contact</a></div>
         <span>© {new Date().getFullYear()}</span>
       </footer>
 
       {activeProject && (
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setActiveProject(null)}>
           <article className="project-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-            <button className="modal-close" type="button" onClick={() => setActiveProject(null)} aria-label="Close case study">×</button>
+            <button ref={closeButtonRef} className="modal-close" type="button" onClick={() => setActiveProject(null)} aria-label="Close technical case study">×</button>
             <span className="project-category">{activeProject.category}</span>
             <h2 id="modal-title">{activeProject.title}</h2>
-            <p className="modal-intro">{activeProject.description}</p>
+            <p className="modal-intro">{activeProject.summary}</p>
             <div className="modal-grid">
-              <div><span>MY ROLE</span><p>{activeProject.role}</p></div>
-              <div><span>MAIN CHALLENGE</span><p>{activeProject.challenge}</p></div>
-              <div><span>KEY LEARNING</span><p>{activeProject.learning}</p></div>
+              <div><span>PROBLEM</span><p>{activeProject.problem}</p></div>
+              <div><span>MY CONTRIBUTION</span><p>{activeProject.contribution}</p></div>
             </div>
-            <h3>System highlights</h3>
-            <ul>{activeProject.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
-            {activeProject.note && <p className="modal-note">{activeProject.note}</p>}
+            <div className="modal-architecture"><span>ARCHITECTURE</span><p>{activeProject.approach}</p></div>
+            <div className="modal-outcome"><span>VERIFIED OUTCOME</span><p>{activeProject.outcome}</p></div>
             <div className="tag-row">{activeProject.stack.map((item) => <span key={item}>{item}</span>)}</div>
+            <p className="repo-pending">Repository and demo links are pending verification.</p>
           </article>
         </div>
       )}
