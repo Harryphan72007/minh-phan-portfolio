@@ -1,98 +1,116 @@
-# vinext-starter
+# Minh Phan — Software Engineering & ML Systems Portfolio
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+Recruiter-focused personal portfolio for Minh Phan (Quang Minh Phan), a
+Computer Science student at the University of Minnesota. The site presents
+verified software engineering, machine-learning systems, computer-vision, and
+research experience without inflating unfinished work or unverified links.
 
-## Prerequisites
+![Portfolio desktop preview](docs/portfolio-preview.png)
 
-- Node.js `>=22.13.0`
+## What is included
 
-## Quick Start
+- Internship-oriented hero and candidate summary
+- Three verified project case studies
+- Software engineering internship and undergraduate research experience
+- Concise ICML 2026 workshop acceptance and measured robustness results
+- Skills grouped by practical workflow
+- Education, résumé download, contact placeholders, and GitHub profile
+- Responsive navigation, accessible dialogs, reduced-motion support, and
+  keyboard-visible focus states
+- Open Graph image, structured data, canonical metadata, `robots.txt`, and
+  `sitemap.xml`
+- Static export and deployment workflow for GitHub Pages
+
+## Tech stack
+
+- React 19 and TypeScript
+- Vinext (Vite-powered Next.js-compatible runtime)
+- Hand-authored responsive CSS
+- Node.js test runner
+- GitHub Actions and GitHub Pages
+
+## Project structure
+
+| Path | Purpose |
+| --- | --- |
+| `app/page.tsx` | Portfolio content, case studies, interactions, and JSON-LD |
+| `app/globals.css` | Visual system, layout, responsive behavior, and accessibility |
+| `app/layout.tsx` | Search and social metadata |
+| `public/` | Résumé, favicon, social preview, robots, and sitemap |
+| `scripts/export-pages.mjs` | Produces the base-path-safe static Pages artifact |
+| `scripts/preview-pages.mjs` | Serves the exported artifact locally |
+| `scripts/make_resume.py` | Rebuilds the résumé PDF |
+| `tests/portfolio.test.mjs` | Content, accessibility, metadata, and export checks |
+| `.github/workflows/deploy.yml` | Validates and deploys `main` to GitHub Pages |
+
+## Run locally
+
+Requirements: Node.js 22 and npm.
 
 ```bash
-npm install
+npm ci
 npm run dev
-npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+Open `http://localhost:3000`.
 
-## Included Shape
+## Verify
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+npm run lint
+npm run typecheck
+npm test
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+`npm test` builds the Vinext application, exports it with the repository base
+path, and runs the content and artifact assertions.
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+To inspect the exact GitHub Pages artifact:
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+```bash
+npm run build:pages -- --base-path=/minh-phan-portfolio
+npm run preview:pages
+```
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+Open `http://localhost:4173/minh-phan-portfolio/`.
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+## Deploy to GitHub Pages
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+The workflow deploys on pushes to `main` and can also be started manually. In
+the GitHub repository, set **Settings → Pages → Build and deployment → Source**
+to **GitHub Actions**. The intended public URL is:
 
-## Useful Commands
+`https://harryphan72007.github.io/minh-phan-portfolio/`
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+The repository name and base path are configured in:
 
-## Learn More
+- `package.json`
+- `.github/workflows/deploy.yml`
+- `app/layout.tsx`
+- `public/robots.txt`
+- `public/sitemap.xml`
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+Update all five together if the repository is renamed.
+
+## Update personal details
+
+Verified and pending profile links are centralized in `profileLinks` near the
+top of `app/page.tsx`. Replace the explicit LinkedIn, email, manuscript, and
+OpenReview placeholders only after confirming the real URLs.
+
+The downloadable résumé is `public/quang-minh-phan-resume.pdf`. Its tracked
+generator requires Python and ReportLab:
+
+```bash
+python -m pip install reportlab
+python scripts/make_resume.py
+```
+
+Review the generated PDF visually before publishing it.
+
+## Accuracy policy
+
+This portfolio intentionally distinguishes employment from volunteer research,
+uses “accepted” rather than “published” for the CTB at ICML 2026 work, and
+labels unavailable repositories and professional links as pending. Add claims,
+metrics, technologies, and URLs only when they can be verified.
