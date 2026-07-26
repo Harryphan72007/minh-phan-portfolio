@@ -45,7 +45,7 @@ const projects = [
     outcome:
       "Keeps decisions with the reviewer: the system supports documentation work and does not make autonomous diagnosis or treatment decisions.",
     stack: ["React", "TypeScript", "Vite", "ASR", "OCR", "Local AI"],
-    repository: null,
+    repository: "https://github.com/Harryphan72007/NoteFlow-AI",
     demo: null,
   },
   {
@@ -100,14 +100,6 @@ const personSchema = {
 
 function Arrow() {
   return <span aria-hidden="true">↗</span>;
-}
-
-function PendingLink({ label }: { label: string }) {
-  return (
-    <span className="pending-link" aria-label={`${label} link pending`} title={`${label} link pending`}>
-      {label} <small>link pending</small>
-    </span>
-  );
 }
 
 function SectionHeading({ number, label, title, muted }: { number: string; label: string; title: string; muted: string }) {
@@ -186,8 +178,6 @@ export default function Home() {
             </div>
             <div className="social-row" aria-label="Professional links">
               <a href={profileLinks.github} target="_blank" rel="noopener noreferrer">GitHub <Arrow /></a>
-              <PendingLink label="LinkedIn" />
-              <PendingLink label="Email" />
             </div>
           </div>
 
@@ -236,7 +226,7 @@ export default function Home() {
                 <div className="tag-row">{project.stack.map((item) => <span key={item}>{item}</span>)}</div>
                 <div className="project-links">
                   <button className="text-link" type="button" onClick={() => setActiveProject(project)}>Technical case study <Arrow /></button>
-                  <span className="repo-pending">Repository link pending</span>
+                  {project.repository && <a className="text-link" href={project.repository} target="_blank" rel="noopener noreferrer">Repository <Arrow /></a>}
                 </div>
               </article>
             ))}
@@ -291,8 +281,8 @@ export default function Home() {
                 <li>Analyzed clean and corrupted accuracy, trainable parameters, and results across random seeds.</li>
               </ul>
               <div className="publication-actions">
-                {profileLinks.paper ? <a className="text-link" href={profileLinks.paper}>Read manuscript <Arrow /></a> : <PendingLink label="Manuscript" />}
-                {profileLinks.openReview ? <a className="text-link" href={profileLinks.openReview}>OpenReview <Arrow /></a> : <PendingLink label="OpenReview" />}
+                {profileLinks.paper && <a className="text-link" href={profileLinks.paper}>Read manuscript <Arrow /></a>}
+                {profileLinks.openReview && <a className="text-link" href={profileLinks.openReview}>OpenReview <Arrow /></a>}
               </div>
             </div>
             <div className="metrics-card">
@@ -334,8 +324,6 @@ export default function Home() {
           <div className="contact-actions reveal">
             <a href={profileLinks.github} target="_blank" rel="noopener noreferrer"><span>GitHub</span><b>Harryphan72007</b><Arrow /></a>
             <a href={profileLinks.resume} download><span>Résumé</span><b>Download PDF</b><Arrow /></a>
-            <div className="contact-placeholder"><span>LinkedIn</span><b>Link pending</b></div>
-            <div className="contact-placeholder"><span>Email</span><b>Address pending</b></div>
           </div>
         </section>
       </main>
