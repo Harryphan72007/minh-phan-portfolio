@@ -14,7 +14,7 @@ research experience without inflating unfinished work or unverified links.
 - Software engineering internship and undergraduate research experience
 - Concise ICML 2026 workshop acceptance and measured robustness results
 - Skills grouped by practical workflow
-- Education, résumé download, contact placeholders, and GitHub profile
+- Education, résumé download, verified GitHub contact, and GitHub profile
 - Responsive navigation, accessible dialogs, reduced-motion support, and
   keyboard-visible focus states
 - Open Graph image, structured data, canonical metadata, `robots.txt`, and
@@ -94,9 +94,9 @@ Update all five together if the repository is renamed.
 
 ## Update personal details
 
-Verified and pending profile links are centralized in `profileLinks` near the
-top of `app/page.tsx`. Replace the explicit LinkedIn, email, manuscript, and
-OpenReview placeholders only after confirming the real URLs.
+Profile links are centralized in `profileLinks` near the top of `app/page.tsx`.
+Only add LinkedIn, email, manuscript, or OpenReview URLs after confirming the
+real destinations.
 
 The downloadable résumé is `public/quang-minh-phan-resume.pdf`. Its tracked
 generator requires Python and ReportLab:
@@ -112,5 +112,5 @@ Review the generated PDF visually before publishing it.
 
 This portfolio intentionally distinguishes employment from volunteer research,
 uses “accepted” rather than “published” for the CTB at ICML 2026 work, and
-labels unavailable repositories and professional links as pending. Add claims,
+labels unavailable repositories and unverified professional links as omitted. Add claims,
 metrics, technologies, and URLs only when they can be verified.
