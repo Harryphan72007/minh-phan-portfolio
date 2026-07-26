@@ -26,7 +26,7 @@ test("server-renders the internship-focused portfolio", async () => {
   assert.match(html, /Software Engineering Intern/);
   assert.match(html, /Undergraduate Research Volunteer/);
   assert.match(html, /The Shape of Noise/);
-  assert.match(html, /Link pending/);
+  assert.doesNotMatch(html, /link pending|address pending|Repository link pending/i);
   assert.match(html, /Skip to content/);
   assert.doesNotMatch(html, /Passionate developer|Technology enthusiast|senior engineer/i);
 });
