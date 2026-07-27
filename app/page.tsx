@@ -68,7 +68,7 @@ const projects = [
     approach:
       "Notes + audio + scans → extraction → comparison → human review → export",
     outcome:
-      "The stabilization branch passes 19 backend tests plus frontend lint, type checking, tests, and production build. Not for clinical use.",
+      "The v0.1.0 release passes 19 backend tests plus frontend lint, type checking, tests, and production build. Not for clinical use.",
     stack: ["FastAPI", "React", "TypeScript", "ASR", "OCR", "SQLAlchemy"],
     link: "https://github.com/Harryphan72007/NoteFlow-AI",
     linkLabel: "Repository",
