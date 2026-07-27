@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(portfolioUrl),
-  title: "Minh Phan | Software Engineering & ML Systems",
+  title: "Minh Phan | ML Engineering & Systems",
   description:
-    "Computer Science student building reliable software, ML systems, local AI applications, and computer vision experiments.",
+    "Computer Science student building reproducible computer-vision experiments, reliable ML systems, and production-minded software.",
   keywords: [
     "Minh Phan",
     "software engineering internship",
@@ -36,26 +36,26 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "Minh Phan | Software Engineering & ML Systems",
+    title: "Minh Phan | ML Engineering & Systems",
     description:
-      "Computer Science student building reliable software, ML systems, local AI applications, and computer vision experiments.",
+      "Reproducible computer vision, reliable ML systems, and production-minded software.",
     url: "./",
     siteName: "Minh Phan Portfolio",
     images: [
       {
-        url: `${portfolioUrl}og.png`,
+        url: `${portfolioUrl}og-ml-systems.png`,
         width: 1734,
         height: 909,
-        alt: "Minh Phan - Software Engineering and ML Systems",
+        alt: "Minh Phan - ML Systems, Computer Vision, and Software Engineering",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Minh Phan | Software Engineering & ML Systems",
+    title: "Minh Phan | ML Engineering & Systems",
     description:
-      "Computer Science student building reliable software, ML systems, local AI applications, and computer vision experiments.",
-    images: [`${portfolioUrl}og.png`],
+      "Reproducible computer vision, reliable ML systems, and production-minded software.",
+    images: [`${portfolioUrl}og-ml-systems.png`],
   },
 };
 
