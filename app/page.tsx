@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const profileLinks = {
   github: "https://github.com/Harryphan72007",
-  email: "mailto:phan0368@umn.edu",
+  email: "mailto:quangminhph07@gmail.com",
   paper: "https://openreview.net/pdf?id=k1P5W70u2V",
   openReview: "https://openreview.net/forum?id=k1P5W70u2V",
   resume: "/quang-minh-phan-resume.pdf",
@@ -89,7 +89,7 @@ const personSchema = {
   "@type": "Person",
   name: "Minh Phan",
   alternateName: "Quang Minh Phan",
-  email: "phan0368@umn.edu",
+  email: "quangminhph07@gmail.com",
   url: "https://harryphan72007.github.io/minh-phan-portfolio/",
   sameAs: [profileLinks.github],
   affiliation: {
@@ -459,7 +459,7 @@ export default function Home() {
             </p>
           </div>
           <div className="contact-actions reveal">
-            <a href={profileLinks.email}><span>Email</span><b>phan0368@umn.edu</b><Arrow /></a>
+            <a href={profileLinks.email}><span>Email</span><b>quangminhph07@gmail.com</b><Arrow /></a>
             <a href={profileLinks.github} target="_blank" rel="noopener noreferrer">
               <span>GitHub</span><b>Harryphan72007</b><Arrow />
             </a>
