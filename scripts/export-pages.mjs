@@ -26,7 +26,13 @@ const response = await workerModule.default.fetch(
   {
     ASSETS: {
       fetch: async (request) => {
-        const assetPath = new URL(request.url).pathname.replace(/^\/+/, "");
+        // A base-aware build asks for assets under the base path; they are on disk without it.
+        const requestPath = new URL(request.url).pathname;
+        const assetPath = (
+          basePath && requestPath.startsWith(`${basePath}/`)
+            ? requestPath.slice(basePath.length)
+            : requestPath
+        ).replace(/^\/+/, "");
         try {
           return new Response(await readFile(path.join(clientDir, assetPath)));
         } catch {
@@ -43,12 +49,29 @@ if (!response.ok) {
 }
 
 let html = await response.text();
+
+// The inlined font stylesheet points at the build machine's absolute path on Windows, where the
+// font plugin fails to recognise the emitted files as client assets. Map it back onto the exported
+// asset directory so a local preview matches what CI deploys.
+const localFontPrefix = `${root.replaceAll("\\", "/")}/.vinext/fonts/`;
+html = html.replaceAll(`url(${localFontPrefix}`, "url(/assets/_vinext_fonts/");
+
 if (basePath) {
+  // Vite's `base` already prefixes the bundled assets it emits, but references written by hand in
+  // the application (the résumé, the social image, anything served straight out of public/) still
+  // point at the root. Prefixing is therefore applied per reference and skipped when the value is
+  // already inside the base path, so running over a base-aware build cannot double-prefix.
+  const prefix = (value) =>
+    value === basePath || value.startsWith(`${basePath}/`) ? value : `${basePath}${value}`;
+
   html = html
-    .replaceAll('href="/', `href="${basePath}/`)
-    .replaceAll('src="/', `src="${basePath}/`)
-    .replaceAll('import("/', `import("${basePath}/`)
-    .replaceAll('\\"/', `\\"${basePath}/`);
+    .replace(/(href|src)="(\/(?!\/)[^"]*)"/g, (_, attribute, value) => `${attribute}="${prefix(value)}"`)
+    // Font faces are inlined in a <style> block, so they are never covered by the attribute
+    // rewrites above. Without this the deployed page silently falls back to system fonts.
+    .replace(/url\((\/(?!\/)[^)]*)\)/g, (_, value) => `url(${prefix(value)})`)
+    .replace(/import\("(\/(?!\/)[^"]*)"\)/g, (_, value) => `import("${prefix(value)}")`)
+    // Paths embedded in the escaped JSON of the RSC payload.
+    .replace(/\\"(\/(?!\/)[^"\\]*)/g, (_, value) => `\\"${prefix(value)}`);
 }
 
 const rootReferences = [...html.matchAll(/(?:href|src)=["'](\/(?!\/|#)[^"']*)/g)].map((match) => match[1]);
@@ -60,11 +83,17 @@ const unresolvedImports = basePath
       .map((match) => match[1])
       .filter((reference) => !reference.startsWith(`${basePath}/`))
   : [];
-if (unresolvedReferences.length || unresolvedImports.length) {
+const unresolvedUrls = basePath
+  ? [...html.matchAll(/url\((\/(?!\/)[^)]*)\)/g)]
+      .map((match) => match[1])
+      .filter((reference) => !reference.startsWith(`${basePath}/`))
+  : [];
+if (unresolvedReferences.length || unresolvedImports.length || unresolvedUrls.length) {
   throw new Error(
     `Static export still contains unprefixed root paths: ${[
       ...unresolvedReferences,
       ...unresolvedImports,
+      ...unresolvedUrls,
     ]
       .slice(0, 8)
       .join(", ")}`,

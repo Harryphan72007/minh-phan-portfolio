@@ -8,10 +8,10 @@
   "scripts": {
     "dev": "vinext dev",
     "build": "vinext build",
-    "build:pages": "npm run build && node scripts/export-pages.mjs",
+    "build:pages": "node scripts/build-pages.mjs",
     "preview:pages": "node scripts/preview-pages.mjs",
     "start": "vinext start",
-    "test": "npm run build && node scripts/export-pages.mjs --base-path=/minh-phan-portfolio && node --test tests/*.test.mjs",
+    "test": "node scripts/build-pages.mjs --base-path=/minh-phan-portfolio && node --test tests/*.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "typecheck": "tsc --noEmit"
   },

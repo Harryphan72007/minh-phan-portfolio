@@ -50,7 +50,13 @@ styles = {
     "body": ParagraphStyle("body", fontName=regular, fontSize=8.2, leading=11.2, textColor=MUTED),
     "bullet": ParagraphStyle("bullet", fontName=regular, fontSize=7.8, leading=10.4, textColor=MUTED, leftIndent=8, firstLineIndent=-7, bulletIndent=0, spaceAfter=1.5),
     "skill": ParagraphStyle("skill", fontName=regular, fontSize=7.4, leading=10.2, textColor=MUTED),
+    "contact": ParagraphStyle("contact", fontName=mono, fontSize=7.4, leading=10.5, textColor=CYAN, spaceBefore=5),
+    "link": ParagraphStyle("link", fontName=mono, fontSize=6.8, leading=9, textColor=CYAN, spaceBefore=1),
 }
+
+EMAIL = "quangminhph07@gmail.com"
+GITHUB = "github.com/Harryphan72007"
+SITE = "harryphan72007.github.io/minh-phan-portfolio"
 
 
 def section(label):
@@ -69,8 +75,8 @@ def experience(role, org, dates, location, bullets):
     return KeepTogether(story)
 
 
-def project(title, category, description, stack):
-    return KeepTogether([
+def project(title, category, description, stack, repo=None):
+    story = [
         Table(
             [[Paragraph(title, styles["role"]), Paragraph(category.upper(), styles["meta"])]],
             colWidths=[4.8 * inch, 2.5 * inch],
@@ -78,8 +84,11 @@ def project(title, category, description, stack):
         ),
         Paragraph(description, styles["body"]),
         Paragraph(f"<font name='{mono}' color='#087F91'>{stack}</font>", styles["skill"]),
-        Spacer(1, 4),
-    ])
+    ]
+    if repo:
+        story.append(Paragraph(f'<link href="https://{repo}">{repo}</link>', styles["link"]))
+    story.append(Spacer(1, 4))
+    return KeepTogether(story)
 
 
 def page(canvas, doc):
@@ -102,6 +111,12 @@ story = [
         style=TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"), ("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 0)]),
     ),
     Paragraph("Computer Science student building reliable software, ML systems, local AI applications, and computer vision experiments.", styles["title"]),
+    Paragraph(
+        f'<link href="mailto:{EMAIL}">{EMAIL}</link>'
+        f' &#183; <link href="https://{GITHUB}">{GITHUB}</link>'
+        f' &#183; <link href="https://{SITE}">{SITE}</link>',
+        styles["contact"],
+    ),
 ]
 
 story += section("Education")
@@ -138,25 +153,39 @@ story.append(experience(
 story += section("Research Work")
 story.append(experience(
     "The Shape of Noise",
-    "Layer-Wise Perturbation Profiles for Diagnosing Vision Robustness - accepted to CTB at ICML 2026",
+    "Layer-Wise Perturbation Profiles for Diagnosing Vision Robustness - accepted as a poster to the CTB workshop at ICML 2026",
     "WORKSHOP CO-AUTHOR",
     "COMPUTER VISION",
     [
-        "Designed and ran ResNet-50 and ConvNeXt-Tiny experiments on CIFAR-10 and CIFAR-10-C; compared full fine-tuning, LoRA, layer subsets, multi-seed results, and parameter counts.",
-        "Top-k LoRA on ConvNeXt-Tiny reached 92.57% corrupted accuracy with 0.04M trainable parameters.",
+        "Co-authored with S. Nguyen, V. G. Bao, and T. P. Le; ran the controlled ResNet-50 and ConvNeXt-Tiny experiments on CIFAR-10 and CIFAR-10-C.",
+        "Compared full fine-tuning, LoRA, and profile-selected layer subsets across parameter counts and multiple seeds.",
+        "Reported in the paper: Top-k LoRA on ConvNeXt-Tiny reached 92.57% corrupted accuracy with 0.04M trainable parameters, against 94.95% with 27.83M for full fine-tuning.",
     ],
 ))
 
 story += section("Selected Projects")
-story.append(project("NoteFlow AI", "Local-first AI", "Transforms notes, audio, and scans into structured, reviewable documentation with OCR, ASR, source comparison, audit logs, and human review.", "React / TypeScript / Vite / ASR / OCR"))
-story.append(project("AI Sign Language Recognition", "Real-time CV", "Recognizes ASL hand gestures through MediaPipe landmarks, feature preprocessing, and k-nearest-neighbors prediction.", "Python / OpenCV / MediaPipe / scikit-learn"))
+story.append(project(
+    "Aerial Object Detection Benchmark",
+    "ML systems - infrastructure built, GPU runs pending",
+    "Single-protocol VisDrone comparison across Faster R-CNN (ResNet-50, Swin-T, VMamba-T) and RT-DETRv2-L. Built the COCO conversion, resumable Optuna studies, checkpoint lifecycle, GPU adapter smoke gate, and schema-validated result bundles. 498 tests across 67 modules; no benchmark result is claimed yet.",
+    "Python / PyTorch / MMDetection / Optuna / VisDrone2019 / COCO",
+    repo="github.com/Harryphan72007/aerial-object-detection-benchmark",
+))
+story.append(project(
+    "NoteFlow AI",
+    "Local-first AI - released v0.1.0",
+    "Turns notes, audio, and scans into reviewable records that keep source, model output, and human correction separate. Built the FastAPI system of record, correctable ASR/OCR records, WER/CER and numeric-mismatch comparison, audit history, and the React review interface. 19 backend tests plus frontend gates in CI.",
+    "FastAPI / SQLAlchemy / React / TypeScript / ASR / OCR / Ollama",
+    repo="github.com/Harryphan72007/NoteFlow-AI",
+))
 
 story += section("Technical Skills")
 skills = [
-    [Paragraph("PROGRAMMING", styles["meta"]), Paragraph("Python, C++, Java", styles["skill"])],
-    [Paragraph("ML + VISION", styles["meta"]), Paragraph("PyTorch, scikit-learn, LoRA, fine-tuning, OpenCV, MediaPipe, model evaluation", styles["skill"])],
-    [Paragraph("AI APPLICATIONS", styles["meta"]), Paragraph("Local ASR, OCR, Ollama, document-processing workflows", styles["skill"])],
-    [Paragraph("WEB + RESEARCH", styles["meta"]), Paragraph("FastAPI, React, TypeScript, Vite, REST APIs, Git, LaTeX, multi-seed evaluation", styles["skill"])],
+    [Paragraph("LANGUAGES", styles["meta"]), Paragraph("Python, TypeScript, Java", styles["skill"])],
+    [Paragraph("ML + VISION", styles["meta"]), Paragraph("PyTorch, MMDetection, Optuna, LoRA, fine-tuning, COCO evaluation, multi-seed analysis", styles["skill"])],
+    [Paragraph("AI APPLICATIONS", styles["meta"]), Paragraph("Local ASR, OCR, Ollama, human-review and document-processing workflows", styles["skill"])],
+    [Paragraph("BACKEND + WEB", styles["meta"]), Paragraph("FastAPI, SQLAlchemy, Alembic, REST APIs, React, Vite", styles["skill"])],
+    [Paragraph("TOOLING", styles["meta"]), Paragraph("Git, GitHub Actions, pytest, Docker, LaTeX", styles["skill"])],
 ]
 story.append(Table(skills, colWidths=[1.25 * inch, 6.05 * inch], style=TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"), ("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 0), ("TOPPADDING", (0, 0), (-1, -1), 2), ("BOTTOMPADDING", (0, 0), (-1, -1), 2)])))
 

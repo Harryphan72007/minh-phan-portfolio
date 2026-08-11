@@ -18,13 +18,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(portfolioUrl),
   title: "Minh Phan | ML Engineering & Systems",
   description:
-    "Computer Science student building reproducible computer-vision experiments, reliable ML systems, and production-minded software.",
+    "Computer Science student building reproducible computer-vision benchmarks, reliable ML systems, and backend services with verifiable evidence on GitHub.",
   keywords: [
     "Minh Phan",
     "software engineering internship",
     "machine learning systems",
     "computer vision",
-    "efficient AI",
+    "object detection benchmark",
+    "reproducible research",
     "University of Minnesota",
   ],
   alternates: {
