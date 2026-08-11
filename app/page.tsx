@@ -7,81 +7,151 @@ const profileLinks = {
   email: "mailto:quangminhph07@gmail.com",
   paper: "https://openreview.net/pdf?id=k1P5W70u2V",
   openReview: "https://openreview.net/forum?id=k1P5W70u2V",
+  workshop: "https://sites.google.com/view/icml-ctb/technical-program/accepted-papers",
   resume: "/quang-minh-phan-resume.pdf",
 };
 
-const projects = [
-  {
-    id: "shape-of-noise",
-    number: "01",
-    title: "The Shape of Noise",
-    category: "Computer vision · Robustness research",
-    status: "Accepted · CTB at ICML 2026",
-    summary:
-      "Layer-wise perturbation profiles for diagnosing how image corruptions are amplified or suppressed inside vision models.",
-    problem:
-      "Aggregate robustness scores show whether a model fails, but not where internal representations become fragile.",
-    contribution:
-      "Contributed controlled ResNet-50 and ConvNeXt-Tiny experiments, LoRA and layer-subset comparisons, and multi-seed analysis.",
-    approach:
-      "CIFAR-10/C corruptions → layer-wise profiles → selected adaptation targets → multi-seed evaluation",
-    outcome:
-      "Accepted to the CTB workshop at ICML 2026. The public manuscript is the source of record; no lab code is redistributed here.",
-    stack: ["PyTorch", "Computer Vision", "Robustness", "LoRA", "Multi-seed evaluation"],
-    link: "https://openreview.net/forum?id=k1P5W70u2V",
-    linkLabel: "OpenReview",
-    image: null,
-  },
+type ProjectLink = {
+  label: string;
+  href: string;
+};
+
+type Project = {
+  id: string;
+  number: string;
+  title: string;
+  category: string;
+  status: string;
+  year: string;
+  summary: string;
+  problem: string;
+  built: string[];
+  approach: string;
+  evidence: string;
+  stack: string[];
+  links: ProjectLink[];
+  image: string | null;
+};
+
+const projects: Project[] = [
   {
     id: "aerial",
-    number: "02",
-    title: "Aerial Detection Benchmark",
+    number: "01",
+    title: "Aerial Object Detection Benchmark",
     category: "ML systems · Reproducible evaluation",
-    status: "In progress · Results TBD",
+    status: "Infrastructure built · GPU runs pending",
+    year: "2026",
     summary:
-      "A fair VisDrone comparison across CNN, DETR, Vision Mamba, and RT-DETR detector families.",
+      "A single-protocol VisDrone comparison across four detector families, built so the comparison stays fair when data splits, search budgets, and hardware differ.",
     problem:
-      "Detector comparisons become misleading when data splits, search budgets, evaluation code, and hardware reporting differ.",
-    contribution:
-      "Designed one shared protocol, VisDrone-to-COCO conversion, provenance capture, append-only results, CI, and resumable Optuna studies.",
+      "Detector comparisons become misleading when data splits, search budgets, evaluation code, and hardware reporting differ between architectures. Published rankings rarely ship the machinery needed to reproduce them.",
+    built: [
+      "Implemented four detector adapters behind one interface: Faster R-CNN with ResNet-50, Swin-T, and VMamba-T backbones, plus RT-DETRv2-L.",
+      "Built the VisDrone-to-COCO conversion, annotation validation, class-collapse tracks, and dataset manifests that every model consumes.",
+      "Built resumable Optuna studies, checkpoint lifecycle management, and a GPU adapter smoke gate that refuses to start training until each model passes on the target hardware.",
+      "Wrote schema-validated result bundles and a publication path so a claimed number always carries its provenance.",
+    ],
     approach:
-      "VisDrone → shared configs → equal-budget studies → COCO metrics + latency/memory evidence",
-    outcome:
-      "The tested benchmark scaffold is public. Every result remains explicitly TBD until timestamped experiment artifacts exist.",
-    stack: ["Python", "VisDrone", "COCO", "Optuna", "CI"],
-    link: "https://github.com/Harryphan72007/aerial-object-detection-benchmark",
-    linkLabel: "Repository",
+      "VisDrone → COCO conversion → shared configs → equal-budget Optuna studies → COCO metrics + latency/memory probes → validated result bundles",
+    evidence:
+      "498 tests collected across 67 modules, 5 GitHub Actions workflows green, 16 notebooks, and 4 model adapters. The repository states its own limits: no benchmark result exists yet, and `results/` holds scaffolding only.",
+    stack: ["Python", "PyTorch", "MMDetection", "Optuna", "VisDrone2019", "COCO"],
+    links: [
+      {
+        label: "Repository",
+        href: "https://github.com/Harryphan72007/aerial-object-detection-benchmark",
+      },
+    ],
     image: null,
   },
   {
     id: "noteflow",
-    number: "03",
+    number: "02",
     title: "NoteFlow AI",
     category: "Local-first AI · Product engineering",
-    status: "Prototype · Synthetic demo data",
+    status: "Released v0.1.0 · Prototype",
+    year: "2026",
     summary:
-      "A documentation workflow that turns notes, recordings, and scans into reviewable records with an audit trail.",
+      "A documentation workflow that turns notes, recordings, and scans into reviewable records, keeping source, model output, and human correction separate.",
     problem:
-      "Mixed-format documentation is difficult to normalize without losing source context, model uncertainty, or accountability.",
-    contribution:
-      "Connected React and FastAPI ingestion with ASR/OCR records, corrections, comparisons, tasks, audit history, and exports.",
+      "Most documentation pipelines collapse source material and model output into one generated record, so a reviewer cannot tell what the system received, what a model produced, and who changed it.",
+    built: [
+      "Built the FastAPI backend as the system of record: SQLAlchemy entities, Alembic migrations, and ownership checks across documents, tasks, audits, and exports.",
+      "Implemented correctable ASR and OCR records that retain both the original and the edited value rather than overwriting model output.",
+      "Implemented the comparison service computing word error rate, character error rate, and numeric-mismatch detection between source and corrected text.",
+      "Built the React and TypeScript review interface and wired optional local ASR, PaddleOCR, and Ollama adapters that fail visibly instead of silently degrading.",
+    ],
     approach:
-      "Notes + audio + scans → extraction → comparison → human review → export",
-    outcome:
-      "The v0.1.0 release passes 19 backend tests plus frontend lint, type checking, tests, and production build. Not for clinical use.",
-    stack: ["FastAPI", "React", "TypeScript", "ASR", "OCR", "SQLAlchemy"],
-    link: "https://github.com/Harryphan72007/NoteFlow-AI",
-    linkLabel: "Repository",
+      "Notes + audio + scans → extraction → WER/CER comparison → human review → audit trail → export",
+    evidence:
+      "Tagged release v0.1.0 (July 2026) with 19 backend tests, plus frontend lint, type checking, tests, and production build enforced in CI. All demo data is synthetic; not for clinical use.",
+    stack: ["FastAPI", "React", "TypeScript", "SQLAlchemy", "Alembic", "ASR", "OCR", "Ollama"],
+    links: [{ label: "Repository", href: "https://github.com/Harryphan72007/NoteFlow-AI" }],
     image: "/noteflow-dashboard.png",
+  },
+  {
+    id: "legal",
+    number: "03",
+    title: "Vietnamese Legal AI",
+    category: "Retrieval & conflict detection · Early stage",
+    status: "Architecting · Scaffolding published",
+    year: "2026",
+    summary:
+      "A four-repository design for screening draft legal clauses against existing Vietnamese law, split so retrieval, conflict analysis, and evidence-grounded explanation stay separable.",
+    problem:
+      "Checking whether a draft clause contradicts existing law is a retrieval problem and a reasoning problem at once, and collapsing them into one model makes the result impossible to audit against a cited source.",
+    built: [
+      "Designed the pipeline as four independent services: corpus processing, hybrid retrieval, pairwise conflict classification, and evidence-grounded RAG.",
+      "Published the walking skeleton for each: packaged Python project, typed configuration, structured logging, CLI entry point, Dockerfile, Makefile, and CI.",
+      "Planned, not yet implemented: document parsing, clause schemas, lexical and dense retrieval, ANN search, ranking, conflict classification, evaluation, and citation-grounded generation.",
+    ],
+    approach:
+      "Legal documents → corpus processing → clause representation → hybrid retrieval → candidate generation → conflict analysis → evidence-grounded explanation",
+    evidence:
+      "Each repository currently holds one commit of scaffolding with a CLI smoke test under CI. No retrieval, parsing, or conflict-detection code is implemented yet, and none is claimed here.",
+    stack: ["Python", "CLI", "Docker", "GitHub Actions"],
+    links: [
+      { label: "LegalConflict-RAG", href: "https://github.com/Harryphan72007/LegalConflict-RAG" },
+      { label: "VietLegalCorpus", href: "https://github.com/Harryphan72007/VietLegalCorpus" },
+      { label: "HybridClauseSearch", href: "https://github.com/Harryphan72007/HybridClauseSearch" },
+      {
+        label: "ClauseConflictEngine",
+        href: "https://github.com/Harryphan72007/ClauseConflictEngine",
+      },
+    ],
+    image: null,
   },
 ];
 
 const skillGroups = [
-  { label: "Programming", skills: ["Python", "C++", "Java", "TypeScript"] },
-  { label: "ML engineering", skills: ["PyTorch", "scikit-learn", "Optuna", "Experiment tracking"] },
-  { label: "Computer vision", skills: ["Robustness", "Object detection", "OpenCV", "LoRA"] },
-  { label: "Systems & backend", skills: ["FastAPI", "SQLAlchemy", "REST APIs", "Local inference"] },
-  { label: "Frontend & practice", skills: ["React", "Vite", "Git", "LaTeX", "CI"] },
+  { label: "Languages", skills: ["Python", "TypeScript", "Java"] },
+  {
+    label: "ML & computer vision",
+    skills: ["PyTorch", "MMDetection", "Optuna", "LoRA", "COCO evaluation"],
+  },
+  {
+    label: "ML systems & evaluation",
+    skills: [
+      "Reproducible pipelines",
+      "Hyperparameter search",
+      "Checkpoint lifecycles",
+      "Latency & memory profiling",
+      "Multi-seed analysis",
+    ],
+  },
+  {
+    label: "Backend & data",
+    skills: ["FastAPI", "SQLAlchemy", "Alembic", "REST APIs", "SQLite"],
+  },
+  { label: "Frontend", skills: ["React", "TypeScript", "Vite", "Tailwind CSS"] },
+  {
+    label: "Applied AI",
+    skills: ["Local ASR", "OCR", "Ollama", "Human-review workflows"],
+  },
+  {
+    label: "Developer tooling",
+    skills: ["Git", "GitHub Actions", "pytest", "ESLint", "Docker"],
+  },
 ];
 
 const personSchema = {
@@ -129,17 +199,24 @@ function SectionHeading({
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeProject, setActiveProject] = useState<(typeof projects)[number] | null>(null);
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    // Arming the hidden state here — rather than in the stylesheet — keeps every section readable
+    // when this script does not run at all.
+    const documentElement = document.documentElement;
+    documentElement.classList.add("js-reveal");
     const observer = new IntersectionObserver(
       (entries) =>
         entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
       { threshold: 0.1 },
     );
     document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      documentElement.classList.remove("js-reveal");
+    };
   }, []);
 
   useEffect(() => {
@@ -170,7 +247,7 @@ export default function Home() {
           className={menuOpen ? "nav-links is-open" : "nav-links"}
           aria-label="Primary navigation"
         >
-          {["Projects", "Experience", "Research", "Skills", "Education", "Contact"].map((item) => (
+          {["Projects", "Research", "Experience", "Skills", "Education", "Contact"].map((item) => (
             <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMenuOpen(false)}>
               {item}
             </a>
@@ -206,8 +283,10 @@ export default function Home() {
             <div className="eyebrow"><i /> MINH PHAN · COMPUTER SCIENCE @ UMN</div>
             <h1>ML Engineering <span>& Systems</span></h1>
             <p className="hero-intro">
-              I build reproducible computer-vision experiments and reliable ML products, from
-              evaluation protocols and local inference to backend APIs and human review workflows.
+              Computer Science undergraduate working across ML systems, computer vision, and
+              backend engineering. I build the infrastructure that makes an experiment
+              reproducible and a model&apos;s output reviewable — evaluation protocols, detector
+              benchmarks, local inference services, and human-review workflows.
             </p>
             <div className="hero-actions">
               <a className="button" href="#projects">View evidence <Arrow /></a>
@@ -246,17 +325,17 @@ export default function Home() {
           </aside>
 
           <div className="evidence-strip reveal is-visible">
-            <span><b>01</b> Accepted robustness research</span>
-            <span><b>02</b> Reproducible benchmark design</span>
-            <span><b>03</b> Tested full-stack ML prototype</span>
-            <span><b>04</b> Production-minded internship work</span>
+            <span><b>01</b> ICML 2026 workshop paper · co-author</span>
+            <span><b>02</b> 498 tests · 5 CI workflows</span>
+            <span><b>03</b> Released v0.1.0 · 19 backend tests</span>
+            <span><b>04</b> SWE intern · local ASR APIs</span>
           </div>
         </section>
 
         <section className="section projects" id="projects">
           <SectionHeading
             number="01"
-            label="FEATURED WORK"
+            label="ENGINEERING WORK"
             title="Evidence before"
             muted="claims."
           />
@@ -283,12 +362,38 @@ export default function Home() {
                 <h3>{project.title}</h3>
                 <p className="project-summary">{project.summary}</p>
                 <dl className="project-details">
-                  <div><dt>Technical approach</dt><dd>{project.approach}</dd></div>
-                  <div><dt>Verified outcome</dt><dd>{project.outcome}</dd></div>
+                  <div>
+                    <dt>What I built</dt>
+                    <dd>
+                      <ul className="built-list">
+                        {project.built.slice(0, 2).map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </dd>
+                  </div>
+                  <div><dt>Evidence</dt><dd>{project.evidence}</dd></div>
                 </dl>
                 <div className="tag-row">
                   {project.stack.map((item) => <span key={item}>{item}</span>)}
                 </div>
+                {project.links.length > 1 && (
+                  <div className="repo-group">
+                    <span>Repositories</span>
+                    <div>
+                      {project.links.map((link) => (
+                        <a
+                          key={link.href}
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {link.label}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="project-links">
                   <button
                     className="text-link"
@@ -299,85 +404,56 @@ export default function Home() {
                   </button>
                   <a
                     className="text-link"
-                    href={project.link}
+                    href={project.links[0].href}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {project.linkLabel} <Arrow />
+                    {project.links.length > 1 ? "Primary repository" : project.links[0].label}{" "}
+                    <Arrow />
                   </a>
                 </div>
               </article>
             ))}
           </div>
-        </section>
-
-        <section className="section experience" id="experience">
-          <SectionHeading
-            number="02"
-            label="EXPERIENCE"
-            title="Engineering across"
-            muted="models and products."
-          />
-          <div className="experience-list">
-            <article className="experience-card reveal">
-              <div className="experience-side">
-                <span>SOFTWARE ENGINEERING INTERNSHIP</span>
-                <b>MAY 2026 — PRESENT</b>
-                <small>HO CHI MINH CITY, VIETNAM</small>
-              </div>
-              <div>
-                <h3>Software Engineering Intern</h3>
-                <p className="organization">FPT Software</p>
-                <ul>
-                  <li><strong>Built</strong> a FastAPI and React workspace around reusable local speech inference.</li>
-                  <li><strong>Designed</strong> single-file and batch transcription APIs while keeping one model loaded.</li>
-                  <li><strong>Implemented</strong> inference locking, validation, and explicit decode and memory error handling.</li>
-                  <li><strong>Integrated</strong> recording, upload, preview, and service-status flows.</li>
-                </ul>
-              </div>
-            </article>
-            <article className="experience-card reveal">
-              <div className="experience-side">
-                <span>UNDERGRADUATE RESEARCH · VOLUNTEER</span>
-                <b>MAY 2026 — PRESENT</b>
-                <small>MINNEAPOLIS, MINNESOTA</small>
-              </div>
-              <div>
-                <h3>Undergraduate Research Volunteer</h3>
-                <p className="organization">Ding Lab · University of Minnesota Twin Cities</p>
-                <ul>
-                  <li><strong>Prepared</strong> datasets for a PhD-led AI hardware and systems research project.</li>
-                  <li><strong>Reviewed</strong> preprocessing output and flagged inconsistent or low-quality samples.</li>
-                  <li><strong>Ran</strong> controlled computer-vision experiments and analyzed model behavior.</li>
-                  <li><strong>Supported</strong> reproducible workflows through structured review and execution.</li>
-                </ul>
-              </div>
-            </article>
-          </div>
+          <p className="section-footnote reveal">
+            Coursework and earlier projects — a Flask emotion-analysis service, a Java
+            recommendation engine, and a static site — stay on{" "}
+            <a href={profileLinks.github} target="_blank" rel="noopener noreferrer">GitHub</a>{" "}
+            rather than here.
+          </p>
         </section>
 
         <section className="section research" id="research">
           <SectionHeading
-            number="03"
+            number="02"
             label="RESEARCH"
             title="Controlled experiments,"
             muted="measured tradeoffs."
           />
           <article className="research-card reveal">
             <div className="research-copy">
-              <span className="acceptance-label">ACCEPTED TO CTB AT ICML 2026</span>
+              <span className="acceptance-label">
+                ACCEPTED · POSTER · CTB WORKSHOP AT ICML 2026
+              </span>
               <h3>The Shape of Noise</h3>
               <p className="research-title">
                 Layer-Wise Perturbation Profiles for Diagnosing Vision Robustness
               </p>
+              <p className="research-authors">
+                Son Nguyen · V. G. Bao · <strong>Quang M. Phan</strong> · Trong P. Le
+              </p>
               <p>
-                The work studies where image corruption changes internal representations and how
-                that signal can guide parameter-efficient adaptation.
+                Aggregate robustness scores show whether a model fails, not where its internal
+                representations become fragile. The paper profiles corruption effects layer by
+                layer and uses that signal to choose where to adapt a model.
               </p>
               <ul className="research-bullets">
-                <li>ResNet-50 and ConvNeXt-Tiny experiments on CIFAR-10 and CIFAR-10-C.</li>
-                <li>Full fine-tuning, LoRA, and profile-selected layer-subset comparisons.</li>
-                <li>Clean/corrupted accuracy, parameter counts, and multi-seed analysis.</li>
+                <li>
+                  <strong>My contribution:</strong> ran the controlled ResNet-50 and ConvNeXt-Tiny
+                  experiments on CIFAR-10 and CIFAR-10-C.
+                </li>
+                <li>Compared full fine-tuning, LoRA, and profile-selected layer subsets.</li>
+                <li>Analyzed clean and corrupted accuracy, parameter counts, and multi-seed variance.</li>
               </ul>
               <div className="publication-actions">
                 <a className="text-link" href={profileLinks.paper} target="_blank" rel="noopener noreferrer">
@@ -385,6 +461,9 @@ export default function Home() {
                 </a>
                 <a className="text-link" href={profileLinks.openReview} target="_blank" rel="noopener noreferrer">
                   OpenReview <Arrow />
+                </a>
+                <a className="text-link" href={profileLinks.workshop} target="_blank" rel="noopener noreferrer">
+                  Workshop program <Arrow />
                 </a>
               </div>
             </div>
@@ -403,23 +482,73 @@ export default function Home() {
               </div>
               <p>
                 Top-k LoRA used about 696× fewer trainable parameters while retaining most corrupted
-                accuracy in this reported comparison.
+                accuracy. Figures as reported in the manuscript; the lab&apos;s experiment code is not
+                redistributed here.
               </p>
             </div>
           </article>
+        </section>
+
+        <section className="section experience" id="experience">
+          <SectionHeading
+            number="03"
+            label="EXPERIENCE"
+            title="Engineering across"
+            muted="models and products."
+          />
+          <div className="experience-list">
+            <article className="experience-card reveal">
+              <div className="experience-side">
+                <span>SOFTWARE ENGINEERING INTERNSHIP</span>
+                <b>MAY 2026 — PRESENT</b>
+                <small>HO CHI MINH CITY, VIETNAM</small>
+              </div>
+              <div>
+                <h3>Software Engineering Intern</h3>
+                <p className="organization">FPT Software</p>
+                <ul>
+                  <li><strong>Built</strong> a FastAPI and React workspace around reusable local speech inference.</li>
+                  <li><strong>Designed</strong> single-file and batch transcription APIs that keep one model resident across requests.</li>
+                  <li><strong>Implemented</strong> inference locking, input validation, and explicit decode and memory error handling.</li>
+                  <li><strong>Integrated</strong> recording, upload, preview, and service-status flows.</li>
+                </ul>
+                <p className="experience-note">Employer code and checkpoints are private and not published.</p>
+              </div>
+            </article>
+            <article className="experience-card reveal">
+              <div className="experience-side">
+                <span>UNDERGRADUATE RESEARCH · VOLUNTEER</span>
+                <b>MAY 2026 — PRESENT</b>
+                <small>MINNEAPOLIS, MINNESOTA</small>
+              </div>
+              <div>
+                <h3>Undergraduate Research Volunteer</h3>
+                <p className="organization">Ding Lab · University of Minnesota Twin Cities</p>
+                <ul>
+                  <li><strong>Prepared</strong> datasets for a PhD-led AI hardware and systems research project.</li>
+                  <li><strong>Reviewed</strong> preprocessing output and flagged inconsistent or low-quality samples.</li>
+                  <li><strong>Ran</strong> controlled computer-vision experiments and analyzed model behavior.</li>
+                  <li><strong>Supported</strong> reproducible workflows through structured review and execution.</li>
+                </ul>
+                <p className="experience-note">Lab code is not redistributed.</p>
+              </div>
+            </article>
+          </div>
         </section>
 
         <section className="section skills" id="skills">
           <SectionHeading
             number="04"
             label="TECHNICAL SKILLS"
-            title="Tools organized by"
-            muted="engineering workflow."
+            title="Tools backed by"
+            muted="public repositories."
           />
           <div className="skill-matrix reveal">
             {skillGroups.map((group, index) => (
               <div className="skill-row" key={group.label}>
-                <div className="skill-label"><span>0{index + 1}</span><b>{group.label}</b></div>
+                <div className="skill-label">
+                  <span>{String(index + 1).padStart(2, "0")}</span><b>{group.label}</b>
+                </div>
                 <div className="skill-tags">
                   {group.skills.map((skill) => <span key={skill}>{skill}</span>)}
                 </div>
@@ -503,25 +632,36 @@ export default function Home() {
             <p className="modal-intro">{activeProject.summary}</p>
             <div className="modal-grid">
               <div><span>PROBLEM</span><p>{activeProject.problem}</p></div>
-              <div><span>MY CONTRIBUTION</span><p>{activeProject.contribution}</p></div>
+              <div><span>STATUS</span><p>{activeProject.status} · {activeProject.year}</p></div>
             </div>
             <div className="modal-architecture">
-              <span>ARCHITECTURE</span><p>{activeProject.approach}</p>
+              <span>WHAT I BUILT</span>
+              <ul className="built-list">
+                {activeProject.built.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </div>
+            <div className="modal-architecture">
+              <span>PIPELINE</span><p>{activeProject.approach}</p>
             </div>
             <div className="modal-outcome">
-              <span>VERIFIED OUTCOME</span><p>{activeProject.outcome}</p>
+              <span>EVIDENCE</span><p>{activeProject.evidence}</p>
             </div>
             <div className="tag-row">
               {activeProject.stack.map((item) => <span key={item}>{item}</span>)}
             </div>
-            <a
-              className="text-link modal-primary-link"
-              href={activeProject.link}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {activeProject.linkLabel} <Arrow />
-            </a>
+            <div className="modal-links">
+              {activeProject.links.map((link) => (
+                <a
+                  key={link.href}
+                  className="text-link"
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {link.label} <Arrow />
+                </a>
+              ))}
+            </div>
           </article>
         </div>
       )}

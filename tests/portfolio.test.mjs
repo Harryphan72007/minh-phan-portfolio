@@ -20,14 +20,47 @@ test("server-renders the ML-systems-focused portfolio", async () => {
 
   const html = await response.text();
   assert.match(html, /ML Engineering/);
-  assert.match(html, /Aerial Detection Benchmark/);
+  assert.match(html, /Aerial Object Detection Benchmark/);
   assert.match(html, /NoteFlow AI/);
+  assert.match(html, /Vietnamese Legal AI/);
   assert.match(html, /Software Engineering Intern/);
   assert.match(html, /Undergraduate Research Volunteer/);
   assert.match(html, /The Shape of Noise/);
   assert.doesNotMatch(html, /link pending|address pending|Repository link pending/i);
   assert.match(html, /Skip to content/);
   assert.doesNotMatch(html, /Passionate developer|Technology enthusiast|senior engineer/i);
+  assert.doesNotMatch(html, /cutting-edge|revolutionary|state-of-the-art/i);
+});
+
+test("project titles map to the repositories that back them", async () => {
+  const html = await (await render()).text();
+  const repositories = [
+    "Harryphan72007/aerial-object-detection-benchmark",
+    "Harryphan72007/NoteFlow-AI",
+    "Harryphan72007/LegalConflict-RAG",
+    "Harryphan72007/VietLegalCorpus",
+    "Harryphan72007/HybridClauseSearch",
+    "Harryphan72007/ClauseConflictEngine",
+  ];
+  for (const repository of repositories) {
+    assert.ok(
+      html.includes(`https://github.com/${repository}`),
+      `missing repository link: ${repository}`,
+    );
+  }
+});
+
+test("states project maturity and research authorship honestly", async () => {
+  const html = await (await render()).text();
+  // Every card carries a maturity label; unfinished work is never shown as complete.
+  assert.match(html, /Infrastructure built · GPU runs pending/);
+  assert.match(html, /Released v0\.1\.0 · Prototype/);
+  assert.match(html, /Architecting · Scaffolding published/);
+  // The benchmark has no results yet, so no accuracy or latency figure may appear for it.
+  assert.doesNotMatch(html, /\bmAP\b|\bFPS\b/);
+  // The workshop paper is co-authored; the site must not imply sole authorship.
+  assert.match(html, /Son Nguyen/);
+  assert.match(html, /Trong P\. Le/);
 });
 
 test("includes recruiter-facing metadata and accessible interaction hooks", async () => {
@@ -47,6 +80,12 @@ test("includes recruiter-facing metadata and accessible interaction hooks", asyn
   assert.match(page, /role="dialog"/);
   assert.match(css, /prefers-reduced-motion: reduce/);
   assert.match(css, /:focus-visible/);
+
+  // Scroll reveals must never be able to hide content on their own: the hidden state is gated on
+  // a class the reveal script adds, so a bundle that fails to load leaves the page readable.
+  assert.match(css, /\.js-reveal \.reveal \{[^}]*opacity: 0/);
+  assert.doesNotMatch(css, /^\.reveal \{[^}]*opacity: 0/m);
+  assert.match(page, /classList\.add\("js-reveal"\)/);
   assert.ok(resume.length > 20_000);
   assert.ok(og.length > 100_000);
 });
@@ -64,6 +103,20 @@ test("exports a base-path-safe GitHub Pages artifact", async () => {
     ),
   );
   assert.doesNotMatch(html, /import\(["']\/assets\//);
+
+  // Font faces live in an inlined <style> block, so they bypass the href/src rewrite. When they
+  // are missed the page still renders, just with system fonts, which is why this is asserted
+  // rather than eyeballed.
+  const cssUrls = [...html.matchAll(/url\((\/(?!\/)[^)]*)\)/g)].map((match) => match[1]);
+  assert.ok(
+    cssUrls.every((reference) => reference.startsWith("/minh-phan-portfolio/")),
+    `unprefixed CSS url(): ${cssUrls.filter((r) => !r.startsWith("/minh-phan-portfolio/")).join(", ")}`,
+  );
+  assert.ok(
+    html.includes("/minh-phan-portfolio/assets/_vinext_fonts/"),
+    "expected the Geist font faces to resolve under the Pages base path",
+  );
+  assert.doesNotMatch(html, /url\([A-Za-z]:\//, "build machine path leaked into the export");
 
   await Promise.all([
     access(new URL("../dist-pages/404.html", import.meta.url)),

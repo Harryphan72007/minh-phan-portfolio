@@ -11,6 +11,17 @@ const { d1, r2 } = hostingConfig;
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
+// GitHub Pages serves this project under /<repository>/. Vite has to know that at build time so
+// chunk URLs in the dynamic-import dependency map resolve under the base path instead of the
+// domain root. It stays unset for the Cloudflare/Sites build, which is served from the root.
+function normalizeBasePath(value?: string) {
+  const trimmed = (value || "").trim();
+  if (!trimmed || trimmed === "/") return undefined;
+  return `/${trimmed.replace(/^\/+|\/+$/g, "")}/`;
+}
+
+const pagesBasePath = normalizeBasePath(process.env.PAGES_BASE_PATH);
+
 const localBindingConfig = {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
@@ -44,6 +55,7 @@ export default defineConfig(async () => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    base: pagesBasePath,
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
       : undefined,

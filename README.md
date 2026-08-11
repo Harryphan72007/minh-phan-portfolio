@@ -14,13 +14,16 @@ Recruiter-focused portfolio for Minh Phan, a Computer Science student at the Uni
 
 The portfolio presents verifiable project and research evidence without inflating unfinished work, private employer code, or unconfirmed links. It is designed for quick recruiter review while retaining enough technical depth for engineering conversations.
 
+![Portfolio mobile preview](docs/portfolio-mobile.png)
+
 ## Highlights
 
 - ML-engineering-oriented candidate summary
-- Case studies for *The Shape of Noise*, the aerial benchmark, and NoteFlow
+- Case studies for the aerial benchmark, NoteFlow, and the Vietnamese Legal AI repositories
+- A dedicated research section for *The Shape of Noise*, with its co-authors named
 - Software engineering internship and undergraduate research experience
-- Public CTB at ICML 2026 manuscript links and measured robustness results
-- Skills organized by engineering workflow rather than keyword volume
+- Per-project maturity labels so unfinished work is never presented as complete
+- Skills limited to what a public repository demonstrates
 - Downloadable résumé and verified contact links
 - Responsive navigation and accessible interactive components
 - Keyboard-visible focus states and reduced-motion support
@@ -109,11 +112,23 @@ Review the generated PDF visually before publishing it.
 
 ## Accuracy policy
 
+Every claim on the site must be checkable against a public artifact. The rules below are
+enforced by `tests/portfolio.test.mjs` where they can be expressed as an assertion.
+
 - Employment and volunteer research are labeled separately.
-- *The Shape of Noise* is described as accepted to CTB at ICML 2026 and links to the public manuscript.
-- Aerial benchmark results remain `TBD` until real runs exist.
-- NoteFlow screenshots and records are explicitly synthetic.
-- Mega-ASR is described as internship experience; private employer code and checkpoints are not published.
+- *The Shape of Noise* is described as a co-authored poster accepted to the CTB workshop at
+  ICML 2026. All four authors are named, the workshop program is linked alongside the
+  manuscript, and the reported figures are attributed to the paper rather than to this site.
+- The aerial benchmark claims infrastructure only. No mAP, FPS, latency, or GPU-memory number
+  appears anywhere on the site, because `results/` in that repository holds scaffolding only.
+- NoteFlow claims its tagged `v0.1.0` release and its 19 backend tests; screenshots and records
+  are explicitly synthetic.
+- The Vietnamese Legal AI repositories are labeled as published scaffolding. The pipeline
+  diagram is presented as a design, and the unimplemented stages are listed as such.
+- Mega-ASR is described as internship experience; private employer code and checkpoints are not
+  published.
+- Skills are listed only when a public repository demonstrates them. Technologies that appear
+  solely in private coursework or in unpublished projects are left off.
 - No third-party repository, metric, or professional link is added without verification.
 
 ## Content and reuse
