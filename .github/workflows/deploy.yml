@@ -1,7 +1,9 @@
-name: Deploy portfolio to GitHub Pages
+name: Validate and deploy portfolio
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -9,7 +11,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: pages
+  # Keyed by ref so a pull request validation run can never cancel an in-flight deploy of main.
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -25,7 +28,10 @@ jobs:
           node-version: 22
           cache: npm
 
+      # Pages configuration and artifact upload only matter for a real deploy. A pull request runs
+      # the same lint, type check, build, and test steps, and stops there.
       - name: Configure GitHub Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
 
       - name: Install dependencies
@@ -43,11 +49,13 @@ jobs:
         run: npm test
 
       - name: Upload GitHub Pages artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v4
         with:
           path: dist-pages
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
