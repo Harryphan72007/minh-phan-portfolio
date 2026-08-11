@@ -84,14 +84,21 @@ Open `http://localhost:4173/minh-phan-portfolio/`.
 
 ## Deployment
 
-The GitHub Actions workflow validates and publishes `main` to GitHub Pages. It runs:
+The GitHub Actions workflow validates every pull request against `main` and publishes `main` to
+GitHub Pages. Both events run:
 
 1. Dependency installation
 2. Linting
 3. Type checking
 4. Build and artifact tests
+
+A push to `main` additionally runs:
+
 5. Static artifact upload
 6. GitHub Pages deployment
+
+A pull request stops after the checks: it never uploads an artifact and never deploys. The
+concurrency group is keyed by ref so a pull request cannot cancel an in-flight deploy.
 
 The `.openai/hosting.json` file also binds this source to its existing OpenAI Sites project.
 
