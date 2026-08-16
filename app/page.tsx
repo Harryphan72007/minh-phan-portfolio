@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 
 const profileLinks = {
   github: "https://github.com/Harryphan72007",
@@ -16,12 +22,15 @@ type ProjectLink = {
   href: string;
 };
 
+type StatusTone = "active" | "released" | "scaffold" | "complete";
+
 type Project = {
   id: string;
   number: string;
   title: string;
   category: string;
   status: string;
+  statusTone: StatusTone;
   year: string;
   summary: string;
   problem: string;
@@ -30,8 +39,29 @@ type Project = {
   evidence: string;
   stack: string[];
   links: ProjectLink[];
+  visual: "detection" | "dashboard" | "legal";
   image: string | null;
+  imageAlt?: string;
 };
+
+type LedgerProject = {
+  title: string;
+  group: string;
+  status: string;
+  updated: string;
+  href: string;
+  tone: StatusTone;
+};
+
+const navItems = [
+  { label: "Projects", id: "projects" },
+  { label: "Status", id: "status" },
+  { label: "Research", id: "research" },
+  { label: "Experience", id: "experience" },
+  { label: "Skills", id: "skills" },
+  { label: "Education", id: "education" },
+  { label: "Contact", id: "contact" },
+];
 
 const projects: Project[] = [
   {
@@ -39,7 +69,8 @@ const projects: Project[] = [
     number: "01",
     title: "Aerial Object Detection Benchmark",
     category: "ML systems · Reproducible evaluation",
-    status: "Infrastructure built · GPU runs pending",
+    status: "CPU validated · GPU runs pending",
+    statusTone: "active",
     year: "2026",
     summary:
       "A single-protocol VisDrone comparison across four detector families, built so the comparison stays fair when data splits, search budgets, and hardware differ.",
@@ -48,13 +79,13 @@ const projects: Project[] = [
     built: [
       "Implemented four detector adapters behind one interface: Faster R-CNN with ResNet-50, Swin-T, and VMamba-T backbones, plus RT-DETRv2-L.",
       "Built the VisDrone-to-COCO conversion, annotation validation, class-collapse tracks, and dataset manifests that every model consumes.",
-      "Built resumable Optuna studies, checkpoint lifecycle management, and a GPU adapter smoke gate that refuses to start training until each model passes on the target hardware.",
-      "Wrote schema-validated result bundles and a publication path so a claimed number always carries its provenance.",
+      "Collapsed the operator flow into five resumable runs: one notebook for each model family, then one evaluation and reporting run.",
+      "Implemented the real evaluation/reporting stage, schema-validated result bundles, checkpoint lifecycle controls, and a GPU gate that refuses training until the adapter passes on target hardware.",
     ],
     approach:
       "VisDrone → COCO conversion → shared configs → equal-budget Optuna studies → COCO metrics + latency/memory probes → validated result bundles",
     evidence:
-      "498 tests collected across 67 modules, 5 GitHub Actions workflows green, 16 notebooks, and 4 model adapters. The repository states its own limits: no benchmark result exists yet, and `results/` holds scaffolding only.",
+      "Four model adapters and the complete five-run operator path are CPU-validated in CI. The repository states its limits: no GPU READY record, measured runtime, or benchmark result exists yet.",
     stack: ["Python", "PyTorch", "MMDetection", "Optuna", "VisDrone2019", "COCO"],
     links: [
       {
@@ -62,6 +93,7 @@ const projects: Project[] = [
         href: "https://github.com/Harryphan72007/aerial-object-detection-benchmark",
       },
     ],
+    visual: "detection",
     image: null,
   },
   {
@@ -70,6 +102,7 @@ const projects: Project[] = [
     title: "NoteFlow AI",
     category: "Local-first AI · Product engineering",
     status: "Released v0.1.0 · Prototype",
+    statusTone: "released",
     year: "2026",
     summary:
       "A documentation workflow that turns notes, recordings, and scans into reviewable records, keeping source, model output, and human correction separate.",
@@ -87,14 +120,17 @@ const projects: Project[] = [
       "Tagged release v0.1.0 (July 2026) with 19 backend tests, plus frontend lint, type checking, tests, and production build enforced in CI. All demo data is synthetic; not for clinical use.",
     stack: ["FastAPI", "React", "TypeScript", "SQLAlchemy", "Alembic", "ASR", "OCR", "Ollama"],
     links: [{ label: "Repository", href: "https://github.com/Harryphan72007/NoteFlow-AI" }],
+    visual: "dashboard",
     image: "/noteflow-dashboard.png",
+    imageAlt: "NoteFlow review dashboard using synthetic demonstration data",
   },
   {
     id: "legal",
     number: "03",
     title: "Vietnamese Legal AI",
     category: "Retrieval & conflict detection · Early stage",
-    status: "Architecting · Scaffolding published",
+    status: "Scaffold v0.1.0 · Walking skeleton",
+    statusTone: "scaffold",
     year: "2026",
     summary:
       "A four-repository design for screening draft legal clauses against existing Vietnamese law, split so retrieval, conflict analysis, and evidence-grounded explanation stay separable.",
@@ -119,7 +155,91 @@ const projects: Project[] = [
         href: "https://github.com/Harryphan72007/ClauseConflictEngine",
       },
     ],
+    visual: "legal",
     image: null,
+  },
+];
+
+const projectLedger: LedgerProject[] = [
+  {
+    title: "Aerial Object Detection Benchmark",
+    group: "ML systems",
+    status: "CPU-validated framework · GPU results pending",
+    updated: "Aug 12, 2026",
+    href: "https://github.com/Harryphan72007/aerial-object-detection-benchmark",
+    tone: "active",
+  },
+  {
+    title: "NoteFlow AI",
+    group: "Local-first AI",
+    status: "v0.1.0 released · Active prototype",
+    updated: "Jul 28, 2026",
+    href: "https://github.com/Harryphan72007/NoteFlow-AI",
+    tone: "released",
+  },
+  {
+    title: "VietLegalCorpus",
+    group: "Vietnamese Legal AI",
+    status: "v0.1.0 scaffold · Parsing not implemented",
+    updated: "Aug 5, 2026",
+    href: "https://github.com/Harryphan72007/VietLegalCorpus",
+    tone: "scaffold",
+  },
+  {
+    title: "HybridClauseSearch",
+    group: "Vietnamese Legal AI",
+    status: "v0.1.0 scaffold · Retrieval not implemented",
+    updated: "Aug 5, 2026",
+    href: "https://github.com/Harryphan72007/HybridClauseSearch",
+    tone: "scaffold",
+  },
+  {
+    title: "ClauseConflictEngine",
+    group: "Vietnamese Legal AI",
+    status: "v0.1.0 scaffold · Classifier not implemented",
+    updated: "Aug 5, 2026",
+    href: "https://github.com/Harryphan72007/ClauseConflictEngine",
+    tone: "scaffold",
+  },
+  {
+    title: "LegalConflict-RAG",
+    group: "Vietnamese Legal AI",
+    status: "v0.1.0 scaffold · Pipeline not implemented",
+    updated: "Aug 5, 2026",
+    href: "https://github.com/Harryphan72007/LegalConflict-RAG",
+    tone: "scaffold",
+  },
+  {
+    title: "Flask Emotion Analysis",
+    group: "Course project",
+    status: "Complete · CI maintained · 1 open issue",
+    updated: "Jul 28, 2026",
+    href: "https://github.com/Harryphan72007/Coursera-Developing-AI-Applications-with-Python-and-Flask-Final-Project",
+    tone: "complete",
+  },
+  {
+    title: "Java Recommendation System",
+    group: "Course project",
+    status: "Complete · Reference implementation · 1 open issue",
+    updated: "Jul 28, 2026",
+    href: "https://github.com/Harryphan72007/Java-Programming-Build-a-Recommendation-System",
+    tone: "complete",
+  },
+  {
+    title: "Immune Project",
+    group: "Student web project",
+    status: "Complete · Static-site demo · 1 open issue",
+    updated: "Jul 28, 2026",
+    href: "https://github.com/Harryphan72007/Immune-project",
+    tone: "complete",
+  },
+  {
+    title: "Minh Phan Portfolio",
+    group: "Portfolio",
+    status: "Live · Actively maintained",
+    updated: "Aug 16, 2026",
+    href: "https://github.com/Harryphan72007/minh-phan-portfolio",
+    tone: "released",
   },
 ];
 
@@ -197,9 +317,60 @@ function SectionHeading({
   );
 }
 
+function ProjectVisual({ project }: { project: Project }) {
+  if (project.visual === "dashboard" && project.image) {
+    return (
+      <div className="project-visual project-dashboard">
+        <div className="visual-toolbar" aria-hidden="true">
+          <span /><span /><span /><b>REVIEW / AUDIT</b>
+        </div>
+        <img className="project-image" src={project.image} alt={project.imageAlt ?? ""} />
+        <span className="visual-caption">LOCAL-FIRST REVIEW SYSTEM · v0.1.0</span>
+      </div>
+    );
+  }
+
+  if (project.visual === "detection") {
+    return (
+      <div className="project-visual visual-detection" aria-hidden="true">
+        <div className="visual-grid" />
+        <span className="visual-kicker">VISDRONE / CONTROLLED PROTOCOL</span>
+        <div className="detection-object object-one"><i>01</i></div>
+        <div className="detection-object object-two"><i>02</i></div>
+        <div className="detection-object object-three"><i>03</i></div>
+        <div className="scan-line" />
+        <div className="visual-models">
+          <span>R50</span><span>SWIN</span><span>VMAMBA</span><span>RT-DETR</span>
+        </div>
+        <b>5 RUNS</b>
+      </div>
+    );
+  }
+
+  return (
+    <div className="project-visual visual-legal" aria-hidden="true">
+      <span className="visual-kicker">EVIDENCE-GROUNDED PIPELINE</span>
+      <div className="legal-doc doc-one"><i /><i /><i /></div>
+      <div className="legal-doc doc-two"><i /><i /><i /></div>
+      <div className="legal-flow"><span>CORPUS</span><i /><span>SEARCH</span><i /><span>CONFLICT</span></div>
+      <div className="legal-target">RAG<small>SCAFFOLD</small></div>
+    </div>
+  );
+}
+
+const revealDelay = (index: number) =>
+  ({ "--reveal-delay": `${Math.min(index, 8) * 55}ms` }) as CSSProperties;
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const siteHeaderRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const pointerFrameRef = useRef<number | null>(null);
+  const projectDialogRef = useRef<HTMLDialogElement>(null);
+  const projectTriggerRef = useRef<HTMLButtonElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -208,8 +379,13 @@ export default function Home() {
     const documentElement = document.documentElement;
     documentElement.classList.add("js-reveal");
     const observer = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
       { threshold: 0.1 },
     );
     document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
@@ -220,17 +396,98 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!activeProject) return;
-    closeButtonRef.current?.focus();
-    const closeOnEscape = (event: KeyboardEvent) =>
-      event.key === "Escape" && setActiveProject(null);
+    const updateScrollProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0;
+      document.documentElement.style.setProperty("--scroll-progress", progress.toFixed(4));
+    };
+    updateScrollProgress();
+    window.addEventListener("scroll", updateScrollProgress, { passive: true });
+
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        const current = entries.find((entry) => entry.isIntersecting);
+        if (current?.target.id) setActiveSection(current.target.id);
+      },
+      { rootMargin: "-32% 0px -58%", threshold: 0 },
+    );
+    ["home", ...navItems.map((item) => item.id)].forEach((id) => {
+      const section = document.getElementById(id);
+      if (section) sectionObserver.observe(section);
+    });
+
+    return () => {
+      window.removeEventListener("scroll", updateScrollProgress);
+      sectionObserver.disconnect();
+      if (pointerFrameRef.current !== null) cancelAnimationFrame(pointerFrameRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMenuOpen(false);
+      menuButtonRef.current?.focus();
+    };
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (!siteHeaderRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
     document.addEventListener("keydown", closeOnEscape);
-    document.body.classList.add("modal-open");
+    document.addEventListener("pointerdown", closeOnOutsidePointer);
     return () => {
       document.removeEventListener("keydown", closeOnEscape);
-      document.body.classList.remove("modal-open");
+      document.removeEventListener("pointerdown", closeOnOutsidePointer);
     };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const dialog = projectDialogRef.current;
+    if (!dialog || !activeProject) return;
+    if (!dialog.open) dialog.showModal();
+    document.body.classList.add("modal-open");
+    requestAnimationFrame(() => closeButtonRef.current?.focus());
+    return () => document.body.classList.remove("modal-open");
   }, [activeProject]);
+
+  const moveHeroLight = (event: ReactPointerEvent<HTMLElement>) => {
+    const hero = heroRef.current;
+    if (!hero || event.pointerType === "touch") return;
+    const bounds = hero.getBoundingClientRect();
+    const x = ((event.clientX - bounds.left) / bounds.width) * 100;
+    const y = ((event.clientY - bounds.top) / bounds.height) * 100;
+    if (pointerFrameRef.current !== null) cancelAnimationFrame(pointerFrameRef.current);
+    pointerFrameRef.current = requestAnimationFrame(() => {
+      hero.style.setProperty("--pointer-x", `${x.toFixed(2)}%`);
+      hero.style.setProperty("--pointer-y", `${y.toFixed(2)}%`);
+    });
+  };
+
+  const openProject = (project: Project, trigger: HTMLButtonElement) => {
+    projectTriggerRef.current = trigger;
+    setActiveProject(project);
+  };
+
+  const closeProject = () => {
+    const dialog = projectDialogRef.current;
+    if (dialog?.open) dialog.close();
+    else setActiveProject(null);
+  };
+
+  const restoreProjectFocus = () => {
+    setActiveProject(null);
+    requestAnimationFrame(() => projectTriggerRef.current?.focus());
+  };
+
+  const closeDialogFromBackdrop = (event: ReactPointerEvent<HTMLDialogElement>) => {
+    const dialog = projectDialogRef.current;
+    if (!dialog) return;
+    const bounds = dialog.getBoundingClientRect();
+    const outside =
+      event.clientX < bounds.left || event.clientX > bounds.right ||
+      event.clientY < bounds.top || event.clientY > bounds.bottom;
+    if (outside) closeProject();
+  };
 
   return (
     <>
@@ -240,16 +497,23 @@ export default function Home() {
       />
       <a className="skip-link" href="#main">Skip to content</a>
 
-      <header className="site-header">
+      <header className="site-header" ref={siteHeaderRef}>
+        <span className="scroll-progress" aria-hidden="true" />
         <a className="wordmark" href="#home" aria-label="Minh Phan, home">MP<i /></a>
         <nav
           id="primary-mobile-menu"
           className={menuOpen ? "nav-links is-open" : "nav-links"}
           aria-label="Primary navigation"
         >
-          {["Projects", "Research", "Experience", "Skills", "Education", "Contact"].map((item) => (
-            <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMenuOpen(false)}>
-              {item}
+          {navItems.map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              className={activeSection === item.id ? "is-active" : undefined}
+              aria-current={activeSection === item.id ? "location" : undefined}
+              onClick={() => setMenuOpen(false)}
+            >
+              {item.label}
             </a>
           ))}
         </nav>
@@ -265,11 +529,12 @@ export default function Home() {
           </a>
           <a className="button button-small" href={profileLinks.resume} download>Résumé</a>
           <button
-            className="menu-button"
+            ref={menuButtonRef}
+            className={menuOpen ? "menu-button is-open" : "menu-button"}
             type="button"
             aria-expanded={menuOpen}
             aria-controls="primary-mobile-menu"
-            aria-label="Toggle navigation"
+            aria-label={menuOpen ? "Close navigation" : "Open navigation"}
             onClick={() => setMenuOpen((open) => !open)}
           >
             <span /><span />
@@ -278,7 +543,17 @@ export default function Home() {
       </header>
 
       <main id="main">
-        <section className="hero" id="home">
+        <section
+          className="hero"
+          id="home"
+          ref={heroRef}
+          onPointerMove={moveHeroLight}
+          onPointerLeave={() => {
+            heroRef.current?.style.setProperty("--pointer-x", "50%");
+            heroRef.current?.style.setProperty("--pointer-y", "38%");
+          }}
+        >
+          <div className="hero-ambient" aria-hidden="true"><i /><i /><i /></div>
           <div className="hero-copy reveal is-visible">
             <div className="eyebrow"><i /> MINH PHAN · COMPUTER SCIENCE @ UMN</div>
             <h1>ML Engineering <span>& Systems</span></h1>
@@ -326,9 +601,9 @@ export default function Home() {
 
           <div className="evidence-strip reveal is-visible">
             <span><b>01</b> ICML 2026 workshop paper · co-author</span>
-            <span><b>02</b> 498 tests · 5 CI workflows</span>
-            <span><b>03</b> Released v0.1.0 · 19 backend tests</span>
-            <span><b>04</b> SWE intern · local ASR APIs</span>
+            <span><b>02</b> 4 model families · 5-run workflow</span>
+            <span><b>03</b> NoteFlow v0.1.0 · 19 backend tests</span>
+            <span><b>04</b> 10 public project repos · status tracked</span>
           </div>
         </section>
 
@@ -340,25 +615,17 @@ export default function Home() {
             muted="claims."
           />
           <div className="project-grid">
-            {projects.map((project) => (
-              <article className="project-card reveal" key={project.id}>
+            {projects.map((project, index) => (
+              <article
+                className={`project-card reveal tone-${project.statusTone}${index === 0 ? " featured" : ""}`}
+                key={project.id}
+                style={revealDelay(index)}
+              >
                 <div className="project-card-top">
                   <span>{project.number}</span><span>{project.category}</span>
                 </div>
-                {project.image ? (
-                  <img
-                    className="project-image"
-                    src={project.image}
-                    alt="NoteFlow dashboard showing synthetic demo data"
-                  />
-                ) : (
-                  <div className={`project-diagram project-diagram-${project.id}`} aria-hidden="true">
-                    <div className="diagram-node">DATA</div><i />
-                    <div className="diagram-node core">EVAL</div><i />
-                    <div className="diagram-node">EVID</div>
-                  </div>
-                )}
-                <span className="project-status">{project.status}</span>
+                <ProjectVisual project={project} />
+                <span className={`project-status tone-${project.statusTone}`}><i />{project.status}</span>
                 <h3>{project.title}</h3>
                 <p className="project-summary">{project.summary}</p>
                 <dl className="project-details">
@@ -398,7 +665,7 @@ export default function Home() {
                   <button
                     className="text-link"
                     type="button"
-                    onClick={() => setActiveProject(project)}
+                    onClick={(event) => openProject(project, event.currentTarget)}
                   >
                     Technical case study <Arrow />
                   </button>
@@ -416,16 +683,56 @@ export default function Home() {
             ))}
           </div>
           <p className="section-footnote reveal">
-            Coursework and earlier projects — a Flask emotion-analysis service, a Java
-            recommendation engine, and a static site — stay on{" "}
-            <a href={profileLinks.github} target="_blank" rel="noopener noreferrer">GitHub</a>{" "}
-            rather than here.
+            The featured cards prioritize depth. The status ledger below tracks every public
+            project repository, including coursework, scaffolds, and this portfolio.
           </p>
+        </section>
+
+        <section className="section status-ledger" id="status">
+          <SectionHeading
+            number="02"
+            label="PROJECT STATUS"
+            title="Every repository,"
+            muted="clearly labeled."
+          />
+          <div className="ledger-overview reveal">
+            <p>
+              Statuses are based on the default branch, releases, and open work visible on GitHub.
+              “Scaffold” means the domain pipeline is not implemented yet—not that a prototype is
+              complete.
+            </p>
+            <div className="ledger-summary" aria-label="Portfolio repository summary">
+              <span><strong>10</strong><small>public project repos</small></span>
+              <span><strong>04</strong><small>maturity labels</small></span>
+              <span><strong>08.16</strong><small>last audited · 2026</small></span>
+            </div>
+          </div>
+          <div className="ledger-list reveal">
+            {projectLedger.map((project, index) => (
+              <a
+                className={`ledger-row tone-${project.tone}`}
+                href={project.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                key={project.href}
+                style={revealDelay(index)}
+              >
+                <span className="ledger-index">{String(index + 1).padStart(2, "0")}</span>
+                <span className="ledger-name">
+                  <small>{project.group}</small>
+                  <strong>{project.title}</strong>
+                </span>
+                <span className="ledger-state"><i />{project.status}</span>
+                <span className="ledger-updated">UPDATED {project.updated}</span>
+                <Arrow />
+              </a>
+            ))}
+          </div>
         </section>
 
         <section className="section research" id="research">
           <SectionHeading
-            number="02"
+            number="03"
             label="RESEARCH"
             title="Controlled experiments,"
             muted="measured tradeoffs."
@@ -491,7 +798,7 @@ export default function Home() {
 
         <section className="section experience" id="experience">
           <SectionHeading
-            number="03"
+            number="04"
             label="EXPERIENCE"
             title="Engineering across"
             muted="models and products."
@@ -538,7 +845,7 @@ export default function Home() {
 
         <section className="section skills" id="skills">
           <SectionHeading
-            number="04"
+            number="05"
             label="TECHNICAL SKILLS"
             title="Tools backed by"
             muted="public repositories."
@@ -559,7 +866,7 @@ export default function Home() {
 
         <section className="section education" id="education">
           <SectionHeading
-            number="05"
+            number="06"
             label="EDUCATION"
             title="A rigorous base for"
             muted="systems work."
@@ -580,7 +887,7 @@ export default function Home() {
 
         <section className="section contact" id="contact">
           <div className="contact-copy reveal">
-            <span className="section-number">06 / CONTACT</span>
+            <span className="section-number">07 / CONTACT</span>
             <h2>Let&apos;s build <em>reliable ML systems.</em></h2>
             <p>
               I am seeking ML engineering, ML systems, computer vision, and software engineering
@@ -609,20 +916,22 @@ export default function Home() {
         <span>© {new Date().getFullYear()}</span>
       </footer>
 
-      {activeProject && (
-        <div
-          className="modal-backdrop"
-          role="presentation"
-          onMouseDown={(event) =>
-            event.target === event.currentTarget && setActiveProject(null)
-          }
-        >
-          <article className="project-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <dialog
+        ref={projectDialogRef}
+        className="project-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={activeProject ? "modal-title" : undefined}
+        onClose={restoreProjectFocus}
+        onPointerDown={closeDialogFromBackdrop}
+      >
+        {activeProject && (
+          <article className="project-modal">
             <button
               ref={closeButtonRef}
               className="modal-close"
               type="button"
-              onClick={() => setActiveProject(null)}
+              onClick={closeProject}
               aria-label="Close technical case study"
             >
               ×
@@ -632,7 +941,12 @@ export default function Home() {
             <p className="modal-intro">{activeProject.summary}</p>
             <div className="modal-grid">
               <div><span>PROBLEM</span><p>{activeProject.problem}</p></div>
-              <div><span>STATUS</span><p>{activeProject.status} · {activeProject.year}</p></div>
+              <div>
+                <span>STATUS</span>
+                <p className={`modal-status tone-${activeProject.statusTone}`}>
+                  <i />{activeProject.status} · {activeProject.year}
+                </p>
+              </div>
             </div>
             <div className="modal-architecture">
               <span>WHAT I BUILT</span>
@@ -663,8 +977,8 @@ export default function Home() {
               ))}
             </div>
           </article>
-        </div>
-      )}
+        )}
+      </dialog>
     </>
   );
 }
