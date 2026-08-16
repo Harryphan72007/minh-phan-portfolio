@@ -41,6 +41,10 @@ test("project titles map to the repositories that back them", async () => {
     "Harryphan72007/VietLegalCorpus",
     "Harryphan72007/HybridClauseSearch",
     "Harryphan72007/ClauseConflictEngine",
+    "Harryphan72007/Coursera-Developing-AI-Applications-with-Python-and-Flask-Final-Project",
+    "Harryphan72007/Java-Programming-Build-a-Recommendation-System",
+    "Harryphan72007/Immune-project",
+    "Harryphan72007/minh-phan-portfolio",
   ];
   for (const repository of repositories) {
     assert.ok(
@@ -53,9 +57,14 @@ test("project titles map to the repositories that back them", async () => {
 test("states project maturity and research authorship honestly", async () => {
   const html = await (await render()).text();
   // Every card carries a maturity label; unfinished work is never shown as complete.
-  assert.match(html, /Infrastructure built · GPU runs pending/);
+  assert.match(html, /CPU validated · GPU runs pending/);
   assert.match(html, /Released v0\.1\.0 · Prototype/);
-  assert.match(html, /Architecting · Scaffolding published/);
+  assert.match(html, /Scaffold v0\.1\.0 · Walking skeleton/);
+  assert.match(html, /no GPU READY record, measured runtime, or benchmark result exists yet/i);
+  assert.match(html, /Parsing not implemented/);
+  assert.match(html, /Retrieval not implemented/);
+  assert.match(html, /Classifier not implemented/);
+  assert.match(html, /Pipeline not implemented/);
   // The benchmark has no results yet, so no accuracy or latency figure may appear for it.
   assert.doesNotMatch(html, /\bmAP\b|\bFPS\b/);
   // The workshop paper is co-authored; the site must not imply sole authorship.
