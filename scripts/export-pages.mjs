@@ -64,19 +64,53 @@ if (basePath) {
   const prefix = (value) =>
     value === basePath || value.startsWith(`${basePath}/`) ? value : `${basePath}${value}`;
 
+  const prefixSrcset = (value) =>
+    value
+      .split(",")
+      .map((candidate) => {
+        const match = candidate.trim().match(/^(\/(?!\/)[^\s]+)(.*)$/);
+        return match ? `${prefix(match[1])}${match[2]}` : candidate.trim();
+      })
+      .join(", ");
+
   html = html
-    .replace(/(href|src)="(\/(?!\/)[^"]*)"/g, (_, attribute, value) => `${attribute}="${prefix(value)}"`)
+    .replace(
+      /(href|src|poster)=(["'])(\/(?!\/)[^"']*)\2/g,
+      (_, attribute, quote, value) => `${attribute}=${quote}${prefix(value)}${quote}`,
+    )
+    .replace(
+      /srcset=(["'])([^"']*)\1/g,
+      (_, quote, value) => `srcset=${quote}${prefixSrcset(value)}${quote}`,
+    )
     // Font faces are inlined in a <style> block, so they are never covered by the attribute
     // rewrites above. Without this the deployed page silently falls back to system fonts.
-    .replace(/url\((\/(?!\/)[^)]*)\)/g, (_, value) => `url(${prefix(value)})`)
-    .replace(/import\("(\/(?!\/)[^"]*)"\)/g, (_, value) => `import("${prefix(value)}")`)
+    .replace(
+      /url\(\s*(["']?)(\/(?!\/)[^"')]+)\1\s*\)/g,
+      (_, quote, value) => `url(${quote}${prefix(value)}${quote})`,
+    )
+    .replace(
+      /import\((["'])(\/(?!\/)[^"']*)\1\)/g,
+      (_, quote, value) => `import(${quote}${prefix(value)}${quote})`,
+    )
     // Paths embedded in the escaped JSON of the RSC payload.
     .replace(/\\"(\/(?!\/)[^"\\]*)/g, (_, value) => `\\"${prefix(value)}`);
 }
 
-const rootReferences = [...html.matchAll(/(?:href|src)=["'](\/(?!\/|#)[^"']*)/g)].map((match) => match[1]);
+const rootReferences = [
+  ...html.matchAll(/(?:href|src|poster)=["'](\/(?!\/|#)[^"']*)/g),
+].map((match) => match[1]);
+const rootSrcsetReferences = [...html.matchAll(/srcset=["']([^"']*)/g)].flatMap((match) =>
+  match[1]
+    .split(",")
+    .map((candidate) => candidate.trim().split(/\s+/, 1)[0])
+    .filter((reference) => reference.startsWith("/") && !reference.startsWith("//")),
+);
+const isUnprefixed = (reference) =>
+  reference !== basePath && !reference.startsWith(`${basePath}/`);
+const isDoublePrefixed = (reference) =>
+  Boolean(basePath) && reference.startsWith(`${basePath}${basePath}/`);
 const unresolvedReferences = basePath
-  ? rootReferences.filter((reference) => reference !== basePath && !reference.startsWith(`${basePath}/`))
+  ? [...rootReferences, ...rootSrcsetReferences].filter(isUnprefixed)
   : [];
 const unresolvedImports = basePath
   ? [...html.matchAll(/import\(["'](\/(?!\/)[^"']*)/g)]
@@ -84,16 +118,28 @@ const unresolvedImports = basePath
       .filter((reference) => !reference.startsWith(`${basePath}/`))
   : [];
 const unresolvedUrls = basePath
-  ? [...html.matchAll(/url\((\/(?!\/)[^)]*)\)/g)]
+  ? [...html.matchAll(/url\(\s*["']?(\/(?!\/)[^"')]+)/g)]
       .map((match) => match[1])
-      .filter((reference) => !reference.startsWith(`${basePath}/`))
+      .filter(isUnprefixed)
   : [];
-if (unresolvedReferences.length || unresolvedImports.length || unresolvedUrls.length) {
+const doublePrefixed = [
+  ...rootReferences,
+  ...rootSrcsetReferences,
+  ...[...html.matchAll(/import\(["'](\/(?!\/)[^"']*)/g)].map((match) => match[1]),
+  ...[...html.matchAll(/url\(\s*["']?(\/(?!\/)[^"')]+)/g)].map((match) => match[1]),
+].filter(isDoublePrefixed);
+if (
+  unresolvedReferences.length ||
+  unresolvedImports.length ||
+  unresolvedUrls.length ||
+  doublePrefixed.length
+) {
   throw new Error(
-    `Static export still contains unprefixed root paths: ${[
+    `Static export contains invalid root paths: ${[
       ...unresolvedReferences,
       ...unresolvedImports,
       ...unresolvedUrls,
+      ...doublePrefixed,
     ]
       .slice(0, 8)
       .join(", ")}`,

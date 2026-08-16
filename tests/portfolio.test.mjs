@@ -101,14 +101,23 @@ test("includes recruiter-facing metadata and accessible interaction hooks", asyn
 
 test("exports a base-path-safe GitHub Pages artifact", async () => {
   const html = await readFile(new URL("../dist-pages/index.html", import.meta.url), "utf8");
+  const basePath = "/minh-phan-portfolio";
   assert.match(html, /\/minh-phan-portfolio\/assets\//);
   assert.match(html, /\/minh-phan-portfolio\/quang-minh-phan-resume\.pdf/);
   const rootReferences = [
-    ...html.matchAll(/(?:href|src)=["'](\/(?!\/|#)[^"']*)["']/g),
+    ...html.matchAll(/(?:href|src|poster)=["'](\/(?!\/|#)[^"']*)["']/g),
   ].map((match) => match[1]);
+  const srcsetReferences = [...html.matchAll(/srcset=["']([^"']*)["']/g)].flatMap((match) =>
+    match[1]
+      .split(",")
+      .map((candidate) => candidate.trim().split(/\s+/, 1)[0])
+      .filter((reference) => reference.startsWith("/") && !reference.startsWith("//")),
+  );
   assert.ok(
-    rootReferences.every((reference) =>
-      reference.startsWith("/minh-phan-portfolio/"),
+    [...rootReferences, ...srcsetReferences].every(
+      (reference) =>
+        (reference === basePath || reference.startsWith(`${basePath}/`)) &&
+        !reference.startsWith(`${basePath}${basePath}/`),
     ),
   );
   assert.doesNotMatch(html, /import\(["']\/assets\//);
@@ -116,7 +125,9 @@ test("exports a base-path-safe GitHub Pages artifact", async () => {
   // Font faces live in an inlined <style> block, so they bypass the href/src rewrite. When they
   // are missed the page still renders, just with system fonts, which is why this is asserted
   // rather than eyeballed.
-  const cssUrls = [...html.matchAll(/url\((\/(?!\/)[^)]*)\)/g)].map((match) => match[1]);
+  const cssUrls = [...html.matchAll(/url\(\s*["']?(\/(?!\/)[^"')]+)/g)].map(
+    (match) => match[1],
+  );
   assert.ok(
     cssUrls.every((reference) => reference.startsWith("/minh-phan-portfolio/")),
     `unprefixed CSS url(): ${cssUrls.filter((r) => !r.startsWith("/minh-phan-portfolio/")).join(", ")}`,
@@ -126,6 +137,24 @@ test("exports a base-path-safe GitHub Pages artifact", async () => {
     "expected the Geist font faces to resolve under the Pages base path",
   );
   assert.doesNotMatch(html, /url\([A-Za-z]:\//, "build machine path leaked into the export");
+
+  const dynamicImports = [...html.matchAll(/import\(["'](\/(?!\/)[^"']*)["']\)/g)].map(
+    (match) => match[1],
+  );
+  const exportedReferences = new Set([
+    ...rootReferences,
+    ...srcsetReferences,
+    ...cssUrls,
+    ...dynamicImports,
+  ]);
+  await Promise.all(
+    [...exportedReferences].map(async (reference) => {
+      const pathname = decodeURIComponent(reference.split(/[?#]/, 1)[0]);
+      const relativePath = pathname.slice(basePath.length).replace(/^\/+/, "");
+      const target = relativePath && !relativePath.endsWith("/") ? relativePath : "index.html";
+      await access(new URL(`../dist-pages/${target}`, import.meta.url));
+    }),
+  );
 
   await Promise.all([
     access(new URL("../dist-pages/404.html", import.meta.url)),

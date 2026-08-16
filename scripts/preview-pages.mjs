@@ -8,6 +8,7 @@ const outputDir = path.join(root, "dist-pages");
 const basePath = `/${(process.env.PAGES_BASE_PATH || "minh-phan-portfolio").replace(/^\/+|\/+$/g, "")}`;
 const port = Number(process.env.PORT || 4173);
 const mimeTypes = {
+  ".avif": "image/avif",
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -16,6 +17,9 @@ const mimeTypes = {
   ".png": "image/png",
   ".svg": "image/svg+xml",
   ".txt": "text/plain; charset=utf-8",
+  ".webm": "video/webm",
+  ".webp": "image/webp",
+  ".woff2": "font/woff2",
   ".xml": "application/xml; charset=utf-8",
 };
 
