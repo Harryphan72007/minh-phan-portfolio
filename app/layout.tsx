@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(portfolioUrl),
   title: "Minh Phan | ML Engineering & Systems",
   description:
-    "Computer Science student building reproducible computer-vision benchmarks, reliable ML systems, and backend services with verifiable evidence on GitHub.",
+    "Computer Science student building reproducible computer-vision benchmarks, reviewable AI systems, and production-minded software with transparent project status.",
   keywords: [
     "Minh Phan",
     "software engineering internship",
@@ -39,15 +39,15 @@ export const metadata: Metadata = {
     type: "website",
     title: "Minh Phan | ML Engineering & Systems",
     description:
-      "Reproducible computer vision, reliable ML systems, and production-minded software.",
+      "Reproducible experiments, reviewable AI, and transparent project status.",
     url: "./",
     siteName: "Minh Phan Portfolio",
     images: [
       {
-        url: `${portfolioUrl}og-ml-systems.png`,
-        width: 1734,
+        url: `${portfolioUrl}og.png`,
+        width: 1731,
         height: 909,
-        alt: "Minh Phan - ML Systems, Computer Vision, and Software Engineering",
+        alt: "Minh Phan — ML Engineering and Systems",
       },
     ],
   },
@@ -55,13 +55,13 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Minh Phan | ML Engineering & Systems",
     description:
-      "Reproducible computer vision, reliable ML systems, and production-minded software.",
-    images: [`${portfolioUrl}og-ml-systems.png`],
+      "Reproducible experiments, reviewable AI, and transparent project status.",
+    images: [`${portfolioUrl}og.png`],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f7f8fa",
+  themeColor: "#f4f7fc",
   colorScheme: "light",
 };
 

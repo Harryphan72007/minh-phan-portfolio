@@ -41,6 +41,10 @@ test("project titles map to the repositories that back them", async () => {
     "Harryphan72007/VietLegalCorpus",
     "Harryphan72007/HybridClauseSearch",
     "Harryphan72007/ClauseConflictEngine",
+    "Harryphan72007/Coursera-Developing-AI-Applications-with-Python-and-Flask-Final-Project",
+    "Harryphan72007/Java-Programming-Build-a-Recommendation-System",
+    "Harryphan72007/Immune-project",
+    "Harryphan72007/minh-phan-portfolio",
   ];
   for (const repository of repositories) {
     assert.ok(
@@ -53,9 +57,14 @@ test("project titles map to the repositories that back them", async () => {
 test("states project maturity and research authorship honestly", async () => {
   const html = await (await render()).text();
   // Every card carries a maturity label; unfinished work is never shown as complete.
-  assert.match(html, /Infrastructure built · GPU runs pending/);
+  assert.match(html, /CPU validated · GPU runs pending/);
   assert.match(html, /Released v0\.1\.0 · Prototype/);
-  assert.match(html, /Architecting · Scaffolding published/);
+  assert.match(html, /Scaffold v0\.1\.0 · Walking skeleton/);
+  assert.match(html, /no GPU READY record, measured runtime, or benchmark result exists yet/i);
+  assert.match(html, /Parsing not implemented/);
+  assert.match(html, /Retrieval not implemented/);
+  assert.match(html, /Classifier not implemented/);
+  assert.match(html, /Pipeline not implemented/);
   // The benchmark has no results yet, so no accuracy or latency figure may appear for it.
   assert.doesNotMatch(html, /\bmAP\b|\bFPS\b/);
   // The workshop paper is co-authored; the site must not imply sole authorship.
@@ -69,7 +78,7 @@ test("includes recruiter-facing metadata and accessible interaction hooks", asyn
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../public/quang-minh-phan-resume.pdf", import.meta.url)),
-    readFile(new URL("../public/og-ml-systems.png", import.meta.url)),
+    readFile(new URL("../public/og.png", import.meta.url)),
   ]);
 
   assert.match(layout, /Minh Phan \| ML Engineering & Systems/);
@@ -122,7 +131,7 @@ test("exports a base-path-safe GitHub Pages artifact", async () => {
     access(new URL("../dist-pages/404.html", import.meta.url)),
     access(new URL("../dist-pages/.nojekyll", import.meta.url)),
     access(new URL("../dist-pages/quang-minh-phan-resume.pdf", import.meta.url)),
-    access(new URL("../dist-pages/og-ml-systems.png", import.meta.url)),
+    access(new URL("../dist-pages/og.png", import.meta.url)),
     access(new URL("../dist-pages/noteflow-dashboard.png", import.meta.url)),
   ]);
 });
