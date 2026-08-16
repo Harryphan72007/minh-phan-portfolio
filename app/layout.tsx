@@ -44,8 +44,8 @@ export const metadata: Metadata = {
     siteName: "Minh Phan Portfolio",
     images: [
       {
-        url: `${portfolioUrl}og.png`,
-        width: 1731,
+        url: `${portfolioUrl}og-ml-systems.png`,
+        width: 1734,
         height: 909,
         alt: "Minh Phan — ML Engineering and Systems",
       },
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     title: "Minh Phan | ML Engineering & Systems",
     description:
       "Reproducible experiments, reviewable AI, and transparent project status.",
-    images: [`${portfolioUrl}og.png`],
+    images: [`${portfolioUrl}og-ml-systems.png`],
   },
 };
 

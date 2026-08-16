@@ -78,7 +78,7 @@ test("includes recruiter-facing metadata and accessible interaction hooks", asyn
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../public/quang-minh-phan-resume.pdf", import.meta.url)),
-    readFile(new URL("../public/og.png", import.meta.url)),
+    readFile(new URL("../public/og-ml-systems.png", import.meta.url)),
   ]);
 
   assert.match(layout, /Minh Phan \| ML Engineering & Systems/);
@@ -131,7 +131,7 @@ test("exports a base-path-safe GitHub Pages artifact", async () => {
     access(new URL("../dist-pages/404.html", import.meta.url)),
     access(new URL("../dist-pages/.nojekyll", import.meta.url)),
     access(new URL("../dist-pages/quang-minh-phan-resume.pdf", import.meta.url)),
-    access(new URL("../dist-pages/og.png", import.meta.url)),
+    access(new URL("../dist-pages/og-ml-systems.png", import.meta.url)),
     access(new URL("../dist-pages/noteflow-dashboard.png", import.meta.url)),
   ]);
 });
