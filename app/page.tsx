@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   useEffect,
   useRef,
@@ -324,7 +325,15 @@ function ProjectVisual({ project }: { project: Project }) {
         <div className="visual-toolbar" aria-hidden="true">
           <span /><span /><span /><b>REVIEW / AUDIT</b>
         </div>
-        <img className="project-image" src={project.image} alt={project.imageAlt ?? ""} />
+        <Image
+          className="project-image"
+          src={project.image}
+          alt={project.imageAlt ?? ""}
+          width={1280}
+          height={720}
+          sizes="(max-width: 760px) calc(100vw - 32px), (max-width: 1050px) 720px, 50vw"
+          unoptimized
+        />
         <span className="visual-caption">LOCAL-FIRST REVIEW SYSTEM · v0.1.0</span>
       </div>
     );
